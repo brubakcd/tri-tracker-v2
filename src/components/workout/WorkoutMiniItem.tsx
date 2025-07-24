@@ -55,9 +55,9 @@ export default function WorkoutMiniItem({
           <BodyText style={styles.title} numberOfLines={1}>
             {workout.workout_data.title}
           </BodyText>
-          <CaptionText style={styles.details} numberOfLines={1}>
+{/*           <CaptionText style={styles.details} numberOfLines={1}>
             {workout.workout_data.description || `${workout.workout_data.intensity || workout.discipline}`}
-          </CaptionText>
+          </CaptionText> */}
         </View>
         
         {/* Duration */}

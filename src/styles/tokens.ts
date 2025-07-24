@@ -7,7 +7,7 @@ export const colors = {
     swim: '#007AFF',
     bike: '#FF9500', 
     run: '#34C759',
-    brick: 'linear-gradient(45deg, #007AFF, #34C759)', // Will need special handling for gradients
+    brick: '#007AFF', // Using swim color as base, gradient will be handled separately
   },
   
   // Status colors
@@ -20,7 +20,7 @@ export const colors = {
   
   // Neutral colors
   neutral: {
-    background: '#F2F2F7',
+    background: '#E5E7EB',
     cards: '#FFFFFF',
     text: '#1C1C1E',
     secondary: '#6D6D80',
@@ -45,6 +45,15 @@ export const colors = {
     gray4: '#D1D1D6',
     gray5: '#E5E5EA',
     gray6: '#F2F2F7',
+  },
+
+  // Common app colors
+  primary: '#007AFF',
+  white: '#FFFFFF',
+  background: '#E5E7EB',
+  text: {
+    primary: '#1C1C1E',
+    secondary: '#6D6D80',
   }
 };
 
@@ -87,8 +96,10 @@ export const spacing = {
   2: 8, 
   3: 12,
   4: 16,
+  5: 20,
   6: 24,
   8: 32,
+  10: 40,
   12: 48,
   16: 64,
   20: 80,
@@ -116,16 +127,16 @@ export const shadows = {
   base: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
     elevation: 3, // Android
   },
   lg: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 6, // Android
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 5, // Android
   },
 };
 
@@ -140,14 +151,14 @@ export const componentTokens = {
   
   button: {
     primary: {
-      backgroundColor: colors.system.blue,
+      backgroundColor: colors.neutral.text,
       borderRadius: borderRadius.base,
       paddingVertical: spacing[3],
       paddingHorizontal: spacing[6],
     },
     secondary: {
       backgroundColor: 'transparent',
-      borderColor: colors.system.blue,
+      borderColor: colors.neutral.border,
       borderWidth: 1,
       borderRadius: borderRadius.base,
       paddingVertical: spacing[3],
@@ -185,3 +196,17 @@ export const createSpacingStyle = (top?: number, right?: number, bottom?: number
     marginLeft: left,
   };
 };
+
+// Convenience export for easier importing
+export const tokens = {
+  colors,
+  typography,
+  spacing,
+  borderRadius,
+  shadows,
+  componentTokens,
+};
+
+// Additional convenience exports
+export const fontSize = typography.sizes;
+export const fontWeight = typography.weights;

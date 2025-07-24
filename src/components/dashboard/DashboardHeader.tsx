@@ -53,7 +53,7 @@ export default function DashboardHeader({
               {greeting.text}, {userName}.
             </Heading2>
           </View>
-          <BodyText style={styles.subtitle}>Let's get to training</BodyText>
+          <BodyText style={styles.subtitle}>Ready to crush today's training?</BodyText>
         </View>
         
         {/* Weekly Progress Stats */}
@@ -111,11 +111,11 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 8,
+      height: 2,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 12,
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
     overflow: 'hidden',
   },
   

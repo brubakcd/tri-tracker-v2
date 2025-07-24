@@ -1,13 +1,25 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Text } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import { Heading1, Heading3, BodyText, BodyTextLarge, CaptionText } from '../components/ui/Typography';
+import { BodyText, BodyTextLarge, CaptionText } from '../components/ui/Typography';
 import Card from '../components/ui/Card';
 import WeekStats from '../components/dashboard/WeekStats';
 import CoachInsights from '../components/dashboard/CoachInsights';
-import { colors, spacing, typography, borderRadius } from '../styles/tokens';
-import { getWeeklyProgress, getCompletedWorkoutsByUserId, getTrainingPlanById, getCurrentRace, getWorkoutsByPlanId } from '../data';
+import { TrendChart, PersonalRecords, ConsistencyStreak } from '../components/insights';
+import { colors, spacing, typography } from '../styles/tokens';
+import { 
+  getWeeklyProgress, 
+  getCompletedWorkoutsByUserId, 
+  getTrainingPlanById, 
+  getCurrentRace, 
+  getWorkoutsByPlanId,
+  getWeeklyVolumeTrends,
+  getPersonalRecords,
+  getConsistencyData,
+  getHeartRateZones,
+  getTrainingLoad
+} from '../data';
 import { Ionicons } from '@expo/vector-icons';
 
 type InsightsStackParamList = {
@@ -29,6 +41,13 @@ export default function InsightsPage({ navigation }: InsightsProps) {
   const weeklyProgress = getWeeklyProgress('plan_1');
   const completedWorkouts = getCompletedWorkoutsByUserId('user_1');
   const allWorkouts = getWorkoutsByPlanId('plan_1');
+  
+  // Get enhanced insights data
+  const volumeTrends = getWeeklyVolumeTrends('user_1', 4);
+  const personalRecords = getPersonalRecords('user_1');
+  const consistencyData = getConsistencyData('user_1', 'plan_1');
+  const heartRateData = getHeartRateZones('user_1');
+  const trainingLoad = getTrainingLoad('user_1');
   
   // Calculate race countdown
   const raceDate = race ? new Date(race.race_date) : new Date();
@@ -65,47 +84,87 @@ export default function InsightsPage({ navigation }: InsightsProps) {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           {/* Race Countdown */}
-          <Card style={styles.countdownCard} variant="elevated">
+          <Card style={styles.countdownCard}>
             <View style={styles.countdownHeader}>
-              <Ionicons name="trophy" size={24} color={colors.system.yellow} />
-              <Text style={styles.raceName}>{race?.name || 'Olympic Triathlon'}</Text>
+              <Ionicons name="trophy" size={20} color={colors.system.yellow} />
+              <BodyTextLarge style={styles.raceName}>{race?.name || 'Olympic Triathlon'}</BodyTextLarge>
             </View>
             <View style={styles.countdownContent}>
               <View style={styles.countdownItem}>
-                <Text style={styles.countdownNumber}>{daysUntilRace}</Text>
-                <Text style={styles.countdownLabel}>DAYS</Text>
+                <BodyTextLarge style={styles.countdownNumber}>{daysUntilRace}</BodyTextLarge>
+                <CaptionText style={styles.countdownLabel}>DAYS</CaptionText>
               </View>
               <View style={styles.countdownDivider} />
               <View style={styles.countdownItem}>
-                <Text style={styles.countdownNumber}>{weeksUntilRace}</Text>
-                <Text style={styles.countdownLabel}>WEEKS</Text>
+                <BodyTextLarge style={styles.countdownNumber}>{weeksUntilRace}</BodyTextLarge>
+                <CaptionText style={styles.countdownLabel}>WEEKS</CaptionText>
               </View>
             </View>
-            <Text style={styles.raceDate}>
+            <CaptionText style={styles.raceDate}>
               {raceDate.toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric' 
               })}
-            </Text>
+            </CaptionText>
           </Card>
+
+          {/* Consistency Streak */}
+          <ConsistencyStreak 
+            currentStreak={consistencyData.currentStreak}
+            longestStreak={consistencyData.longestStreak}
+            weeklyCompletion={consistencyData.weeklyCompletion}
+          />
 
           {/* Weekly Stats */}
           <View style={styles.section}>
-            <Heading3 style={styles.sectionTitle}>This Week's Progress</Heading3>
-            <WeekStats 
-              completed={weeklyProgress.workoutsCompleted}
-              totalMinutes={weeklyProgress.totalMinutes}
-              remaining={weeklyProgress.workoutsRemaining}
-              lastWeekCompleted={3}
-              lastWeekMinutes={180}
-            />
+            <BodyTextLarge style={styles.sectionTitle}>This Week's Progress</BodyTextLarge>
+            <View style={styles.paddedSection}>
+              <WeekStats 
+                completed={weeklyProgress.workoutsCompleted}
+                totalMinutes={weeklyProgress.totalMinutes}
+                remaining={weeklyProgress.workoutsRemaining}
+                lastWeekCompleted={3}
+                lastWeekMinutes={180}
+              />
+            </View>
+          </View>
+
+          {/* Training Trends */}
+          <View style={styles.section}>
+            <BodyTextLarge style={styles.sectionTitle}>Training Trends</BodyTextLarge>
+            <View style={styles.paddedSection}>
+              <TrendChart 
+                title="Weekly Volume"
+                data={volumeTrends.data}
+                trend={volumeTrends.trend as 'up' | 'down' | 'stable'}
+                changeText={volumeTrends.changeText}
+              />
+              <TrendChart 
+                title="Heart Rate Zones"
+                data={heartRateData.data}
+                trend={heartRateData.trend as 'up' | 'down' | 'stable'}
+                changeText={heartRateData.changeText}
+              />
+              <TrendChart 
+                title="Training Load"
+                data={trainingLoad.data.slice(-4)}
+                trend={trainingLoad.trend as 'up' | 'down' | 'stable'}
+                changeText={trainingLoad.changeText}
+              />
+            </View>
+          </View>
+
+          {/* Personal Records */}
+          <View style={styles.section}>
+            <BodyTextLarge style={styles.sectionTitle}>Recent Achievements</BodyTextLarge>
+            <PersonalRecords records={personalRecords as any} />
           </View>
 
           {/* Overall Progress */}
           <View style={styles.section}>
-            <Heading3 style={styles.sectionTitle}>Overall Progress</Heading3>
+            <BodyTextLarge style={styles.sectionTitle}>Overall Progress</BodyTextLarge>
             <Card style={styles.progressCard}>
               <View style={styles.progressHeader}>
                 <BodyTextLarge style={styles.progressPercentage}>{overallProgress}%</BodyTextLarge>
@@ -135,7 +194,7 @@ export default function InsightsPage({ navigation }: InsightsProps) {
 
           {/* Discipline Breakdown */}
           <View style={styles.section}>
-            <Heading3 style={styles.sectionTitle}>Training Distribution</Heading3>
+            <BodyTextLarge style={styles.sectionTitle}>Training Distribution</BodyTextLarge>
             <Card style={styles.disciplineCard}>
               <View style={styles.disciplines}>
                 <View style={styles.disciplineItem}>
@@ -178,23 +237,59 @@ export default function InsightsPage({ navigation }: InsightsProps) {
             </Card>
           </View>
 
+          {/* Key Stats Summary */}
+          <View style={styles.section}>
+            <BodyTextLarge style={styles.sectionTitle}>Key Performance Indicators</BodyTextLarge>
+            <View style={styles.kpiGrid}>
+              <Card style={styles.kpiCard}>
+                <Ionicons name="speedometer-outline" size={20} color={colors.system.blue} />
+                <BodyTextLarge style={styles.kpiValue}>
+                  {heartRateData.avgHeartRate}
+                </BodyTextLarge>
+                <CaptionText style={styles.kpiLabel}>Avg HR</CaptionText>
+              </Card>
+              <Card style={styles.kpiCard}>
+                <Ionicons name="trending-up" size={20} color={colors.system.green} />
+                <BodyTextLarge style={styles.kpiValue}>
+                  {Math.round(completedWorkouts.length / weeksCompleted) || 0}
+                </BodyTextLarge>
+                <CaptionText style={styles.kpiLabel}>Workouts/Week</CaptionText>
+              </Card>
+              <Card style={styles.kpiCard}>
+                <Ionicons name="time-outline" size={20} color={colors.system.orange} />
+                <BodyTextLarge style={styles.kpiValue}>
+                  {Math.round(volumeTrends.data[volumeTrends.data.length - 1].value / 60)}h
+                </BodyTextLarge>
+                <CaptionText style={styles.kpiLabel}>This Week</CaptionText>
+              </Card>
+            </View>
+          </View>
+
           {/* Coach Insights */}
           <View style={styles.section}>
-            <Heading3 style={styles.sectionTitle}>Training Insights</Heading3>
+            <BodyTextLarge style={styles.sectionTitle}>Training Insights</BodyTextLarge>
             <Card style={styles.insightsCard}>
               <CoachInsights 
-                message="Your consistency this week has been excellent! Keep maintaining this momentum as you build toward race day."
+                message={`Great job! You've completed ${weeklyProgress.workoutsCompleted} workouts this week. ${consistencyData.currentStreak > 3 ? `Your ${consistencyData.currentStreak}-day streak shows excellent commitment!` : 'Keep building that consistency!'}`}
               />
               <View style={styles.insightDivider} />
               <CoachInsights 
-                message={`With ${weeksUntilRace} weeks until race day, you're in the ${currentPhase} phase. Focus on building endurance while maintaining good form.`}
+                message={`With ${weeksUntilRace} weeks until race day, you're in the ${currentPhase} phase. ${volumeTrends.trend === 'up' ? 'Your training volume is progressing nicely.' : 'Focus on building volume gradually.'}`}
               />
+              {personalRecords.length > 0 && (
+                <>
+                  <View style={styles.insightDivider} />
+                  <CoachInsights 
+                    message={`Congratulations on setting ${personalRecords.length} new personal ${personalRecords.length === 1 ? 'record' : 'records'} recently! These improvements show your fitness is heading in the right direction.`}
+                  />
+                </>
+              )}
             </Card>
           </View>
 
           {/* Upcoming Milestones */}
           <View style={styles.section}>
-            <Heading3 style={styles.sectionTitle}>Upcoming Milestones</Heading3>
+            <BodyTextLarge style={styles.sectionTitle}>Upcoming Milestones</BodyTextLarge>
             <Card style={styles.milestonesCard}>
               <View style={styles.milestone}>
                 <View style={styles.milestoneDot} />
@@ -236,29 +331,31 @@ const styles = StyleSheet.create({
   },
   
   content: {
-    paddingHorizontal: spacing[4],
-    paddingTop: spacing[6],
+    paddingTop: spacing[2],
     paddingBottom: spacing[8],
   },
 
+  paddedSection: {
+    paddingHorizontal: spacing[4],
+  },
+
   countdownCard: {
-    backgroundColor: colors.neutral.text,
-    marginBottom: spacing[6],
-    padding: spacing[6],
+    marginHorizontal: spacing[4],
+    marginBottom: spacing[4],
+    padding: spacing[4],
   },
 
   countdownHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: spacing[2],
-    marginBottom: spacing[4],
+    marginBottom: spacing[3],
   },
 
   raceName: {
     fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.bold,
-    color: colors.neutral.cards,
+    fontWeight: typography.weights.semibold,
+    color: colors.neutral.text,
   },
 
   countdownContent: {
@@ -274,18 +371,19 @@ const styles = StyleSheet.create({
   },
 
   countdownNumber: {
-    fontSize: 48,
+    fontSize: 32,
     fontWeight: typography.weights.bold,
-    color: colors.neutral.cards,
-    lineHeight: 48,
+    color: colors.neutral.text,
+    lineHeight: 32,
   },
 
   countdownLabel: {
     fontSize: typography.sizes.xs,
     fontWeight: typography.weights.medium,
     color: colors.neutral.secondary,
-    letterSpacing: 1,
+    letterSpacing: 0.5,
     marginTop: spacing[1],
+    textTransform: 'uppercase',
   },
 
   countdownDivider: {
@@ -296,21 +394,25 @@ const styles = StyleSheet.create({
   },
 
   raceDate: {
-    fontSize: typography.sizes.sm,
     color: colors.neutral.secondary,
     textAlign: 'center',
+    marginTop: spacing[2],
   },
 
   section: {
-    marginBottom: spacing[6],
+    marginBottom: spacing[4],
   },
 
   sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#000',
     marginBottom: spacing[4],
-    color: colors.neutral.text,
+    paddingHorizontal: spacing[4],
   },
 
   progressCard: {
+    marginHorizontal: spacing[4],
     padding: spacing[4],
   },
 
@@ -319,8 +421,8 @@ const styles = StyleSheet.create({
   },
 
   progressPercentage: {
-    fontSize: 32,
-    fontWeight: typography.weights.bold,
+    fontSize: 24,
+    fontWeight: typography.weights.semibold,
     color: colors.neutral.text,
   },
 
@@ -364,6 +466,7 @@ const styles = StyleSheet.create({
   },
 
   disciplineCard: {
+    marginHorizontal: spacing[4],
     padding: spacing[4],
   },
 
@@ -397,6 +500,7 @@ const styles = StyleSheet.create({
   },
 
   insightsCard: {
+    marginHorizontal: spacing[4],
     padding: spacing[4],
   },
 
@@ -407,6 +511,7 @@ const styles = StyleSheet.create({
   },
 
   milestonesCard: {
+    marginHorizontal: spacing[4],
     padding: spacing[4],
   },
 
@@ -438,5 +543,32 @@ const styles = StyleSheet.create({
 
   milestoneDate: {
     color: colors.neutral.secondary,
+  },
+
+  kpiGrid: {
+    flexDirection: 'row',
+    gap: spacing[3],
+    paddingHorizontal: spacing[4],
+  },
+
+  kpiCard: {
+    flex: 1,
+    alignItems: 'center',
+    padding: spacing[3],
+    minHeight: 100,
+    justifyContent: 'center',
+  },
+
+  kpiValue: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.neutral.text,
+    marginVertical: spacing[1],
+  },
+
+  kpiLabel: {
+    fontSize: 11,
+    color: colors.neutral.secondary,
+    textAlign: 'center',
   },
 });

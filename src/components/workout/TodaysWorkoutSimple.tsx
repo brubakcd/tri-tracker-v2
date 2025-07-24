@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getTodaysWorkout } from '../../data';
+import { colors } from '../../styles/tokens';
 
 interface TodaysWorkoutSimpleProps {
   onPress?: () => void;
@@ -37,6 +38,7 @@ export default function TodaysWorkoutSimple({ onPress }: TodaysWorkoutSimpleProp
       default: return discipline;
     }
   };
+
 
   const coachNote = Array.isArray(todaysWorkout.workout_data.coach_notes) 
     ? todaysWorkout.workout_data.coach_notes[0]
@@ -108,10 +110,10 @@ const styles = StyleSheet.create({
     padding: 20,
     marginHorizontal: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 25,
-    elevation: 5,
+    shadowRadius: 8,
+    elevation: 3,
   },
   
   header: {

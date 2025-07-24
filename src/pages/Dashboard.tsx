@@ -1,15 +1,15 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, ScrollView, Text } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { CompositeNavigationProp } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { Heading3, BodyText } from '../components/ui/Typography';
 import TodaysWorkoutSimple from '../components/workout/TodaysWorkoutSimple';
 import DashboardHeaderSimple from '../components/dashboard/DashboardHeaderSimple';
+import WeekOverviewCombined from '../components/dashboard/WeekOverviewCombined';
 import WeekStats from '../components/dashboard/WeekStats';
-import WeekOverview from '../components/dashboard/WeekOverview';
 import { spacing } from '../styles/tokens';
-import { getTodaysWorkout, getUpcomingWorkouts, isWorkoutCompleted, getWeeklyProgress } from '../data';
+import { getTodaysWorkout, getUpcomingWorkouts, isWorkoutCompleted } from '../data';
 
 type DashboardStackParamList = {
   DashboardHome: undefined;
@@ -41,8 +41,6 @@ export default function Dashboard({ navigation }: DashboardProps) {
   // Get all workouts for the current week
   const weekWorkouts = getUpcomingWorkouts('plan_1', 7);
   
-  // Get weekly progress stats
-  const weeklyProgress = getWeeklyProgress('plan_1');
   
   // Determine status for today's workout
   const todaysStatus: 'completed' | 'scheduled' | 'missed' | 'skipped' | undefined = 
@@ -58,14 +56,17 @@ export default function Dashboard({ navigation }: DashboardProps) {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
+        {/* Header with Welcome Message */}
         <DashboardHeaderSimple 
-          userName="Cole" 
           onMorePress={() => navigation.navigate('Insights' as any)}
-          weeklyStats={{
-            completed: weeklyProgress.workoutsCompleted,
-            totalMinutes: weeklyProgress.totalMinutes,
-            remaining: weeklyProgress.workoutsRemaining
+          userName="Cole"
+          trainingInfo={{
+            currentWeek: 8,
+            totalWeeks: 16,
+            phase: "Build Phase",
+            program: "Olympic Distance Program",
+            weeklyWorkouts: weekWorkouts,
+            completedCount: completedCount
           }}
         />
         
@@ -81,52 +82,25 @@ export default function Dashboard({ navigation }: DashboardProps) {
             }
           }} />
         </View>
-        
-        {/* This Week Stats */}
-{/*         <View style={[styles.section, styles.paddedSection]}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitleAlt}>This Week</Text>
-            <TouchableOpacity onPress={() => console.log('View all stats')}>
-              <Text style={styles.sectionAction}>View all</Text>
-            </TouchableOpacity>
-          </View>
-          <WeekStats
-            completed={weeklyProgress.workoutsCompleted}
-            totalMinutes={weeklyProgress.totalMinutes}
-            remaining={weeklyProgress.workoutsRemaining}
-            lastWeekCompleted={2} // Mock last week data
-            lastWeekMinutes={375} // Mock last week data
-          />
-        </View> */}
-        
-        {/* Week Overview */}
-        <View style={[styles.section, styles.paddedSection]}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitleAlt}>Week Overview</Text>
-            <TouchableOpacity onPress={() => console.log('View calendar')}>
-              <Text style={styles.sectionAction}>View training plan</Text>
-            </TouchableOpacity>
-          </View>
-          <WeekOverview
-            workouts={weekWorkouts.map(w => ({
-              ...w,
-              discipline: w.discipline as 'swim' | 'bike' | 'run' | 'brick' | 'rest'
-            }))}
-            currentWeek={8}
-            weekPhase="Base Building"
-            completedCount={completedCount}
-            onWorkoutPress={(workoutId) => {
-              const workout = weekWorkouts.find(w => w.id === workoutId);
-              if (workout) {
-                const workoutStatus = isWorkoutCompleted(workoutId) ? 'completed' : 'scheduled';
-                navigation.navigate('WorkoutDetail', {
-                  workoutId: workoutId,
-                  status: workoutStatus
-                });
-              }
-            }}
-          />
-        </View>
+
+        {/* Combined Week Overview */}
+        <WeekOverviewCombined
+          workouts={weekWorkouts}
+          currentWeek={8}
+          totalWeeks={16}
+          weekPhase="Build Phase"
+          onWorkoutPress={(workoutId) => {
+            const workout = weekWorkouts.find(w => w.id === workoutId);
+            if (workout) {
+              const workoutStatus = isWorkoutCompleted(workoutId) ? 'completed' : 'scheduled';
+              navigation.navigate('WorkoutDetail', {
+                workoutId: workoutId,
+                status: workoutStatus
+              });
+            }
+          }}
+          onViewPlanPress={() => navigation.navigate('Plan' as any)}
+        />
       </ScrollView>
     </View>
   );
@@ -135,7 +109,7 @@ export default function Dashboard({ navigation }: DashboardProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F7',
+    backgroundColor: '#E5E7EB',
   },
   
   scrollView: {
@@ -181,5 +155,6 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontWeight: '500',
   },
+
   
 });

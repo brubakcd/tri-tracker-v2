@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { BodyTextLarge, CaptionText } from '../ui/Typography';
 import WorkoutMiniItem from '../workout/WorkoutMiniItem';
 import Card from '../ui/Card';
@@ -19,17 +19,19 @@ interface WeekOverviewProps {
     };
   }>;
   currentWeek?: number;
+  totalWeeks?: number;
   weekPhase?: string;
-  completedCount?: number;
   onWorkoutPress?: (workoutId: string) => void;
+  hideWeekPhaseSection?: boolean;
 }
 
 export default function WeekOverview({ 
   workouts, 
   currentWeek = 8,
+  totalWeeks = 16,
   weekPhase = 'Base Building',
-  completedCount = 0,
-  onWorkoutPress
+  onWorkoutPress,
+  hideWeekPhaseSection = false
 }: WeekOverviewProps) {
   
   // Sort workouts by date
@@ -52,8 +54,6 @@ export default function WeekOverview({
   };
 
   const workoutsWithDayInfo = sortedWorkouts.map(getWorkoutWithDayInfo);
-  const totalWorkouts = workouts.length;
-  const progressText = `${completedCount} of ${totalWorkouts} workouts complete`;
 
   const handleWorkoutPress = (workoutId: string) => {
     if (onWorkoutPress) {
@@ -63,14 +63,23 @@ export default function WeekOverview({
 
   return (
     <Card style={styles.container} variant="elevated">
-      <View style={styles.header}>
-        <BodyTextLarge style={styles.title}>
-          Week {currentWeek} • {weekPhase}
-        </BodyTextLarge>
-        <CaptionText style={styles.progress}>
-          {progressText}
-        </CaptionText>
-      </View>
+      {!hideWeekPhaseSection && (
+        <>
+          <View style={styles.weekPhaseContainer}>
+            <View style={styles.weekPhaseItem}>
+              <Text style={styles.weekPhaseValue}>Week {currentWeek}</Text>
+              <Text style={styles.weekPhaseLabel}>OF {totalWeeks}</Text>
+            </View>
+            <View style={styles.weekPhaseDivider} />
+            <View style={styles.weekPhaseItem}>
+              <Text style={styles.weekPhaseValue}>{weekPhase}</Text>
+              <Text style={styles.weekPhaseLabel}>CURRENT PHASE</Text>
+            </View>
+          </View>
+
+          <View style={styles.separator} />
+        </>
+      )}
 
       <View style={styles.workoutList}>
         {workoutsWithDayInfo.map(({ workout, dayName, dayNumber, isToday }, index) => (
@@ -105,20 +114,46 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   
-  header: {
-    marginBottom: spacing[4],
+  weekPhaseContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#F2F2F7',
+    borderRadius: 8,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
   },
-  
-  title: {
-    fontSize: 17,
+
+  weekPhaseItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  weekPhaseValue: {
+    fontSize: 14,
     fontWeight: '600',
     color: '#1C1C1E',
-    marginBottom: spacing[1],
+    marginBottom: 2,
   },
-  
-  progress: {
-    fontSize: 14,
-    color: '#6D6D80',
+
+  weekPhaseLabel: {
+    fontSize: 10,
+    color: '#8E8E93',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+
+  weekPhaseDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: '#D1D1D6',
+  },
+
+  separator: {
+    height: 1,
+    backgroundColor: '#D1D1D6',
+    marginTop: spacing[4],
+    marginBottom: 0,
   },
   
   workoutList: {

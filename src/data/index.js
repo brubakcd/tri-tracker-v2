@@ -30,7 +30,8 @@ export {
   getWorkoutsByWeek, 
   getWorkoutById, 
   getTodaysWorkout, 
-  getUpcomingWorkouts 
+  getUpcomingWorkouts,
+  getWeeklyPlan 
 } from './mockWorkouts';
 
 // Completed workout data (Strava-like)
@@ -83,6 +84,15 @@ export const getWeeklyProgress = (planId) => {
     totalWorkouts: currentWeekWorkouts.length
   };
 };
+
+// Import insights helpers
+export {
+  getWeeklyVolumeTrends,
+  getPersonalRecords,
+  getConsistencyData,
+  getHeartRateZones,
+  getTrainingLoad
+} from './insightsHelpers';
 
 // Convenience functions for common data operations
 export const getMockDataSummary = () => {

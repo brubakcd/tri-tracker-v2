@@ -1091,3 +1091,40 @@ export const getUpcomingWorkouts = (planId, days = 7) => {
     new Date(workout.scheduled_date) <= future
   ).sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
 };
+
+// Get weekly plan with completion status
+export const getWeeklyPlan = (planId) => {
+  const today = new Date();
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay());
+  startOfWeek.setHours(0, 0, 0, 0);
+  
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
+  endOfWeek.setHours(23, 59, 59, 999);
+  
+  const weekWorkouts = mockWorkouts.filter(workout => {
+    const workoutDate = new Date(workout.scheduled_date);
+    return workout.plan_id === planId &&
+           workoutDate >= startOfWeek &&
+           workoutDate <= endOfWeek;
+  }).sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
+  
+  // Add status based on date
+  return weekWorkouts.map(workout => {
+    const workoutDate = new Date(workout.scheduled_date);
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0);
+    workoutDate.setHours(0, 0, 0, 0);
+    
+    let status = 'scheduled';
+    if (workoutDate < todayDate) {
+      status = Math.random() > 0.3 ? 'completed' : 'missed';
+    }
+    
+    return {
+      ...workout,
+      status
+    };
+  });
+};

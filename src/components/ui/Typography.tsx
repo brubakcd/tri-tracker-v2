@@ -73,6 +73,7 @@ export function SecondaryText({ children, style, ...props }: BaseTextProps) {
   );
 }
 
+
 const styles = StyleSheet.create({
   h1: createTextStyle('3xl', 'bold', colors.neutral.text),
   h2: createTextStyle('2xl', 'bold', colors.neutral.text),

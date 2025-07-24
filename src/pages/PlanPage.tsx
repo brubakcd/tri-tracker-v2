@@ -164,7 +164,7 @@ export default function PlanPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F7',
+    backgroundColor: '#E5E7EB',
   },
   
   content: {

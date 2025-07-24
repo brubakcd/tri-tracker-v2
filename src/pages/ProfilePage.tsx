@@ -1,9 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Text } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
+import { RouteProp, useNavigation } from '@react-navigation/native';
 import { Heading1, Heading3, BodyText } from '../components/ui/Typography';
+import Button from '../components/ui/Button';
 import { colors, spacing, typography } from '../styles/tokens';
+import { RootStackParamList } from '../../App';
 
 type ProfileStackParamList = {
   Profile: undefined;
@@ -11,6 +13,7 @@ type ProfileStackParamList = {
 
 type ProfileNavigationProp = StackNavigationProp<ProfileStackParamList, 'Profile'>;
 type ProfileRouteProp = RouteProp<ProfileStackParamList, 'Profile'>;
+type RootNavigationProp = StackNavigationProp<RootStackParamList>;
 
 interface ProfileProps {
   navigation: ProfileNavigationProp;
@@ -18,6 +21,11 @@ interface ProfileProps {
 }
 
 export default function ProfilePage({ navigation }: ProfileProps) {
+  const rootNavigation = useNavigation<RootNavigationProp>();
+
+  const handleSignOut = () => {
+    rootNavigation.navigate('SignOut');
+  };
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -68,6 +76,16 @@ export default function ProfilePage({ navigation }: ProfileProps) {
             <View style={styles.settingItem}>
               <BodyText>About</BodyText>
             </View>
+          </View>
+
+          <View style={styles.signOutSection}>
+            <Button
+              title="Sign Out"
+              onPress={handleSignOut}
+              variant="outline"
+              size="large"
+              style={styles.signOutButton}
+            />
           </View>
         </View>
       </ScrollView>
@@ -164,5 +182,16 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.sm,
     color: colors.neutral.secondary,
     textAlign: 'center',
+  },
+
+  signOutSection: {
+    marginTop: spacing[2],
+    paddingTop: spacing[3],
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral.separator,
+  },
+
+  signOutButton: {
+    marginTop: spacing[2],
   },
 });

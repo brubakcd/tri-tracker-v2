@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { Image } from 'react-native';
+import { Asset } from 'expo-asset';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -7,7 +9,24 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Dashboard, PlanPage, WeeklyView, WorkoutDetail, CoachPage, ProfilePage, InsightsPage } from './src/pages';
 import { ProfileIcon, NotificationsIcon } from './src/components/ui';
+import AuthWrapper from './src/components/auth/AuthWrapper';
 import { colors, typography, spacing } from './src/styles/tokens';
+import { SplashScreen } from './src/screens/auth/SplashScreen';
+import { SignInScreen } from './src/screens/auth/SignInScreen';
+import { SignUpScreen } from './src/screens/auth/SignUpScreen';
+import { SignOutScreen } from './src/screens/auth/SignOutScreen';
+
+export type RootStackParamList = {
+  Splash: undefined;
+  Auth: undefined;
+  SignOut: undefined;
+  MainApp: undefined;
+};
+
+type AuthStackParamList = {
+  SignIn: undefined;
+  SignUp: undefined;
+};
 
 type PlanStackParamList = {
   PlanOverview: undefined;
@@ -45,18 +64,61 @@ type InsightsStackParamList = {
   Profile: undefined;
 };
 
+const RootStack = createStackNavigator<RootStackParamList>();
+const AuthStack = createStackNavigator<AuthStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 const PlanStack = createStackNavigator<PlanStackParamList>();
 const DashboardStack = createStackNavigator<DashboardStackParamList>();
 const CoachStack = createStackNavigator<CoachStackParamList>();
 const InsightsStack = createStackNavigator<InsightsStackParamList>();
 
+function AuthStackNavigator() {
+  return (
+    <AuthStack.Navigator
+      screenOptions={{
+        headerShown: false,
+        animationEnabled: true,
+        cardStyleInterpolator: ({ current }) => ({
+          cardStyle: {
+            opacity: current.progress,
+          },
+        }),
+      }}
+    >
+      <AuthStack.Screen 
+        name="SignIn" 
+        component={SignInScreen}
+      />
+      <AuthStack.Screen 
+        name="SignUp" 
+        component={SignUpScreen}
+      />
+    </AuthStack.Navigator>
+  );
+}
+
+function AuthContainer() {
+  return (
+    <AuthWrapper>
+      <AuthStackNavigator />
+    </AuthWrapper>
+  );
+}
+
+function SignOutContainer() {
+  return (
+    <AuthWrapper>
+      <SignOutScreen />
+    </AuthWrapper>
+  );
+}
+
 function PlanStackNavigator() {
   return (
     <PlanStack.Navigator
       screenOptions={({ navigation }) => ({
         headerStyle: {
-          backgroundColor: '#F8F9FA',
+          backgroundColor: colors.neutral.cards,
           shadowOpacity: 0,
           elevation: 0,
           borderBottomWidth: 0,
@@ -111,11 +173,6 @@ function PlanStackNavigator() {
         component={WorkoutDetail} 
         options={{ 
           title: 'Workout Detail',
-          headerLeft: undefined,
-          headerRight: undefined,
-          headerLeftContainerStyle: {
-            paddingLeft: 16,
-          },
         }}
       />
       <PlanStack.Screen 
@@ -123,8 +180,6 @@ function PlanStackNavigator() {
         component={ProfilePage} 
         options={{ 
           title: 'Profile',
-          headerLeft: undefined,
-          headerRight: undefined,
         }}
       />
     </PlanStack.Navigator>
@@ -136,7 +191,7 @@ function DashboardStackNavigator() {
     <DashboardStack.Navigator
       screenOptions={({ navigation }) => ({
         headerStyle: {
-          backgroundColor: '#F8F9FA',
+          backgroundColor: colors.neutral.cards,
           shadowOpacity: 0,
           elevation: 0,
           borderBottomWidth: 0,
@@ -186,11 +241,6 @@ function DashboardStackNavigator() {
         component={WorkoutDetail} 
         options={{ 
           title: 'Workout Detail',
-          headerLeft: undefined,
-          headerRight: undefined,
-          headerLeftContainerStyle: {
-            paddingLeft: 16,
-          },
         }}
       />
       <DashboardStack.Screen 
@@ -198,8 +248,6 @@ function DashboardStackNavigator() {
         component={ProfilePage} 
         options={{ 
           title: 'Profile',
-          headerLeft: undefined,
-          headerRight: undefined,
         }}
       />
     </DashboardStack.Navigator>
@@ -211,7 +259,7 @@ function CoachStackNavigator() {
     <CoachStack.Navigator
       screenOptions={({ navigation }) => ({
         headerStyle: {
-          backgroundColor: '#F8F9FA',
+          backgroundColor: colors.neutral.cards,
           shadowOpacity: 0,
           elevation: 0,
           borderBottomWidth: 0,
@@ -261,8 +309,6 @@ function CoachStackNavigator() {
         component={ProfilePage} 
         options={{ 
           title: 'Profile',
-          headerLeft: undefined,
-          headerRight: undefined,
         }}
       />
     </CoachStack.Navigator>
@@ -274,7 +320,7 @@ function InsightsStackNavigator() {
     <InsightsStack.Navigator
       screenOptions={({ navigation }) => ({
         headerStyle: {
-          backgroundColor: '#F8F9FA',
+          backgroundColor: colors.neutral.cards,
           shadowOpacity: 0,
           elevation: 0,
           borderBottomWidth: 0,
@@ -324,8 +370,6 @@ function InsightsStackNavigator() {
         component={ProfilePage} 
         options={{ 
           title: 'Profile',
-          headerLeft: undefined,
-          headerRight: undefined,
         }}
       />
     </InsightsStack.Navigator>
@@ -361,12 +405,12 @@ function TabNavigator() {
             backgroundColor: colors.neutral.cards,
             borderTopWidth: 1,
             borderTopColor: colors.neutral.separator,
-            paddingBottom: Math.max(insets.bottom, spacing[1] / 2),
+            paddingBottom: Math.max(insets.bottom + spacing[1], spacing[2]),
             paddingTop: spacing[1] / 2,
-            height: 52 + Math.max(insets.bottom - spacing[1] / 2, 0),
+            height: 52 + Math.max(insets.bottom, spacing[1]),
           },
           headerStyle: {
-            backgroundColor: '#F8F9FA',
+            backgroundColor: colors.neutral.cards,
             shadowOpacity: 0,
             elevation: 0,
             borderBottomWidth: 0,
@@ -382,7 +426,7 @@ function TabNavigator() {
         <Tab.Screen 
           name="Dashboard" 
           component={DashboardStackNavigator}
-          options={{ title: 'Today', headerShown: false }}
+          options={{ title: 'Home', headerShown: false }}
         />
         <Tab.Screen 
           name="Plan" 
@@ -404,10 +448,24 @@ function TabNavigator() {
 }
 
 export default function App() {
+  useEffect(() => {
+    // Preload the logo image
+    Asset.fromModule(require('./assets/delta_black.png')).downloadAsync();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <TabNavigator />
+        <RootStack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <RootStack.Screen name="Splash" component={SplashScreen} />
+          <RootStack.Screen name="Auth" component={AuthContainer} />
+          <RootStack.Screen name="SignOut" component={SignOutContainer} />
+          <RootStack.Screen name="MainApp" component={TabNavigator} />
+        </RootStack.Navigator>
         <StatusBar style="dark" />
       </NavigationContainer>
     </SafeAreaProvider>
