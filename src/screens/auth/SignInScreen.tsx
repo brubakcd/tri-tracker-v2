@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Touchable
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../../App';
-import { colors, spacing, fontSize } from '../../styles/tokens';
+import { colors, spacing, typography, borderRadius, shadows } from '../../styles/tokens';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { Heading1, SecondaryText, BodyText } from '../../components/ui/Typography';
@@ -97,60 +97,58 @@ export const SignInScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: colors.system.gray6,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 32,
+    paddingHorizontal: spacing[4],
+    paddingTop: spacing[5],
+    paddingBottom: spacing[8],
   },
   headerContainer: {
     alignItems: 'center',
-    marginBottom: 28,
+    marginBottom: spacing[6] + spacing[1],
   },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1C1C1E',
-    marginBottom: 6,
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.semibold,
+    color: colors.neutral.text,
+    marginBottom: spacing[1] + spacing[1]/2,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#48484A',
+    fontSize: typography.sizes.sm,
+    color: colors.text.secondary,
     textAlign: 'center',
     lineHeight: 20,
   },
   formCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    marginBottom: 20,
-    shadowColor: '#000',
+    backgroundColor: colors.neutral.cards,
+    borderRadius: borderRadius.lg,
+    marginBottom: spacing[5],
+    ...shadows.lg,
     shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.1,
     shadowRadius: 25,
-    elevation: 5,
   },
   formContainer: {
-    padding: 20,
+    padding: spacing[5],
   },
   input: {
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   forgotPassword: {
     alignSelf: 'flex-end',
-    marginBottom: 16,
-    marginTop: 4,
+    marginBottom: spacing[4],
+    marginTop: spacing[1],
   },
   forgotPasswordText: {
-    color: '#5AC8FA',
-    fontSize: 12,
-    fontWeight: '500',
+    color: colors.system.teal,
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.weights.medium,
   },
   signInButton: {
-    backgroundColor: '#1C1C1E',
-    borderRadius: 10,
-    paddingVertical: 14,
+    backgroundColor: colors.neutral.text,
+    borderRadius: borderRadius.base + 2,
+    paddingVertical: spacing[3] + spacing[1],
   },
   signUpContainer: {
     flexDirection: 'row',
@@ -158,12 +156,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   signUpText: {
-    color: '#8E8E93',
-    fontSize: 14,
+    color: colors.system.gray,
+    fontSize: typography.sizes.sm,
   },
   signUpLink: {
-    color: '#5AC8FA',
-    fontSize: 14,
-    fontWeight: '500',
+    color: colors.system.teal,
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.medium,
   },
 });

@@ -4,7 +4,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { Heading1, SecondaryText } from '../components/ui/Typography';
 import { WorkoutCard } from '../components/workout';
-import { spacing } from '../styles/tokens';
+import { spacing, colors, typography } from '../styles/tokens';
 import { getWorkoutsByWeek, isWorkoutCompleted } from '../data';
 
 type PlanStackParamList = {
@@ -72,7 +72,7 @@ export default function WeeklyView({ navigation }: WeeklyViewProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.neutral.background,
   },
   
   scrollView: {
@@ -90,9 +90,9 @@ const styles = StyleSheet.create({
   },
   
   title: {
-    fontSize: 28,
-    fontWeight: '600',
-    color: '#1C1C1E',
+    fontSize: typography.sizes['3xl'] - 2,
+    fontWeight: typography.weights.semibold,
+    color: colors.neutral.text,
     marginBottom: spacing[2],
   },
 
@@ -101,9 +101,9 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1C1C1E',
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.semibold,
+    color: colors.neutral.text,
     marginBottom: spacing[4],
   },
 });

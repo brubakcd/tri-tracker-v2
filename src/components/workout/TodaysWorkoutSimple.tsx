@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getTodaysWorkout } from '../../data';
-import { colors } from '../../styles/tokens';
+import { colors, typography, spacing, borderRadius, shadows } from '../../styles/tokens';
 
 interface TodaysWorkoutSimpleProps {
   onPress?: () => void;
@@ -85,13 +85,13 @@ export default function TodaysWorkoutSimple({ onPress }: TodaysWorkoutSimpleProp
 
       <TouchableOpacity style={styles.startButton} onPress={onPress} activeOpacity={0.8}>
         <Text style={styles.startButtonText}>View Workout Details</Text>
-        <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+        <Ionicons name="chevron-forward" size={20} color={colors.white} />
       </TouchableOpacity>
 
       {coachNote && (
         <View style={styles.coachTip}>
           <View style={styles.coachTipHeader}>
-            <Ionicons name="chatbubble-ellipses-outline" size={16} color="#8E8E93" />
+            <Ionicons name="chatbubble-ellipses-outline" size={16} color={colors.system.gray} />
             <Text style={styles.coachTipLabel}>COACHING TIP</Text>
           </View>
           <Text style={styles.coachTipText}>
@@ -105,22 +105,18 @@ export default function TodaysWorkoutSimple({ onPress }: TodaysWorkoutSimpleProp
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    marginHorizontal: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: colors.neutral.cards,
+    borderRadius: borderRadius.lg,
+    padding: spacing[5],
+    marginHorizontal: spacing[4],
+    ...shadows.base,
   },
   
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   
   titleSection: {
@@ -133,20 +129,20 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: '#34C759',
-    marginRight: 10,
+    backgroundColor: colors.status.completed,
+    marginRight: spacing[2] + spacing[1],
   },
   
   title: {
-    fontSize: 17,
-    fontWeight: '500',
-    color: '#1C1C1E',
+    fontSize: typography.sizes.lg - 1,
+    fontWeight: typography.weights.medium,
+    color: colors.neutral.text,
   },
   
   subtitle: {
-    fontSize: 14,
-    color: '#8E8E93',
-    marginTop: 2,
+    fontSize: typography.sizes.sm,
+    color: colors.system.gray,
+    marginTop: spacing[1] / 2,
   },
   
   dateSection: {
@@ -154,37 +150,37 @@ const styles = StyleSheet.create({
   },
   
   dateText: {
-    fontSize: 12,
-    color: '#8E8E93',
-    marginBottom: 4,
+    fontSize: typography.sizes.xs,
+    color: colors.system.gray,
+    marginBottom: spacing[1],
   },
   
   todayBadge: {
-    backgroundColor: '#34C75920',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
+    backgroundColor: colors.status.completed + '20',
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[1] - 1,
+    borderRadius: borderRadius.base + 2,
   },
   
   todayText: {
-    fontSize: 11,
-    color: '#34C759',
-    fontWeight: '500',
+    fontSize: typography.sizes.xs - 1,
+    color: colors.status.completed,
+    fontWeight: typography.weights.medium,
   },
   
   description: {
-    fontSize: 14,
-    color: '#48484A',
+    fontSize: typography.sizes.sm,
+    color: colors.text.secondary,
     lineHeight: 20,
-    marginBottom: 16,
+    marginBottom: spacing[4],
   },
   
   metrics: {
     flexDirection: 'row',
-    backgroundColor: '#F2F2F7',
-    borderRadius: 8,
-    paddingVertical: 16,
-    marginBottom: 16,
+    backgroundColor: colors.system.gray6,
+    borderRadius: borderRadius.base,
+    paddingVertical: spacing[4],
+    marginBottom: spacing[4],
     alignItems: 'center',
   },
   
@@ -195,15 +191,15 @@ const styles = StyleSheet.create({
   },
   
   metricValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1C1C1E',
-    marginBottom: 2,
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.semibold,
+    color: colors.neutral.text,
+    marginBottom: spacing[1] / 2,
   },
   
   metricLabel: {
-    fontSize: 10,
-    color: '#8E8E93',
+    fontSize: typography.sizes.xs - 2,
+    color: colors.system.gray,
     letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
@@ -211,50 +207,50 @@ const styles = StyleSheet.create({
   metricDivider: {
     width: 1,
     height: 24,
-    backgroundColor: '#D1D1D6',
+    backgroundColor: colors.neutral.border,
   },
   
   startButton: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: colors.neutral.text,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 10,
-    marginBottom: 16,
+    paddingVertical: spacing[3] + spacing[1],
+    borderRadius: borderRadius.base + 2,
+    marginBottom: spacing[4],
   },
   
   startButtonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '500',
-    marginRight: 6,
+    color: colors.white,
+    fontSize: typography.sizes.base - 1,
+    fontWeight: typography.weights.medium,
+    marginRight: spacing[1] + spacing[1]/2,
   },
   
   coachTip: {
-    backgroundColor: '#F2F2F7',
-    padding: 14,
-    borderRadius: 10,
+    backgroundColor: colors.system.gray6,
+    padding: spacing[3] + spacing[1],
+    borderRadius: borderRadius.base + 2,
   },
   
   coachTipHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: spacing[1] + spacing[1]/2,
   },
   
   coachTipLabel: {
-    fontSize: 10,
-    color: '#8E8E93',
-    fontWeight: '500',
+    fontSize: typography.sizes.xs - 2,
+    color: colors.system.gray,
+    fontWeight: typography.weights.medium,
     letterSpacing: 0.5,
-    marginLeft: 6,
+    marginLeft: spacing[1] + spacing[1]/2,
     textTransform: 'uppercase',
   },
   
   coachTipText: {
-    fontSize: 13,
-    color: '#48484A',
+    fontSize: typography.sizes.sm - 1,
+    color: colors.text.secondary,
     lineHeight: 18,
   },
 });

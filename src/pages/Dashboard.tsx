@@ -7,8 +7,7 @@ import { Heading3, BodyText } from '../components/ui/Typography';
 import TodaysWorkoutSimple from '../components/workout/TodaysWorkoutSimple';
 import DashboardHeaderSimple from '../components/dashboard/DashboardHeaderSimple';
 import WeekOverviewCombined from '../components/dashboard/WeekOverviewCombined';
-import WeekStats from '../components/dashboard/WeekStats';
-import { spacing } from '../styles/tokens';
+import { spacing, colors, typography } from '../styles/tokens';
 import { getTodaysWorkout, getUpcomingWorkouts, isWorkoutCompleted } from '../data';
 
 type DashboardStackParamList = {
@@ -72,15 +71,16 @@ export default function Dashboard({ navigation }: DashboardProps) {
         
         {/* Today's Workout Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Today's Workout</Text>
-          <TodaysWorkoutSimple onPress={() => {
-            if (todaysWorkout) {
-              navigation.navigate('WorkoutDetail', {
-                workoutId: todaysWorkout.id,
-                status: todaysStatus
-              });
-            }
-          }} />
+          <TodaysWorkoutSimple 
+            onPress={() => {
+              if (todaysWorkout) {
+                navigation.navigate('WorkoutDetail', {
+                  workoutId: todaysWorkout.id,
+                  status: todaysStatus
+                });
+              }
+            }} 
+          />
         </View>
 
         {/* Combined Week Overview */}
@@ -109,7 +109,7 @@ export default function Dashboard({ navigation }: DashboardProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.neutral.background,
   },
   
   scrollView: {
@@ -122,38 +122,38 @@ const styles = StyleSheet.create({
   },
   
   section: {
-    marginBottom: 16,
+    marginBottom: spacing[4],
   },
   
   paddedSection: {
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing[4],
   },
   
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
   
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#000',
-    marginBottom: 16,
-    paddingHorizontal: 16,
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    color: colors.neutral.text,
+    marginBottom: spacing[4],
+    paddingHorizontal: spacing[4],
   },
   
   sectionTitleAlt: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#000',
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    color: colors.neutral.text,
   },
   
   sectionAction: {
-    fontSize: 14,
-    color: '#007AFF',
-    fontWeight: '500',
+    fontSize: typography.sizes.sm,
+    color: colors.primary,
+    fontWeight: typography.weights.medium,
   },
 
   

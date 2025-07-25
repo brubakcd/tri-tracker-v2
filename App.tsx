@@ -1,13 +1,12 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { Image } from 'react-native';
 import { Asset } from 'expo-asset';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Dashboard, PlanPage, WeeklyView, WorkoutDetail, CoachPage, ProfilePage, InsightsPage } from './src/pages';
+import { Dashboard, PlanPage, WeeklyView, WeekDetailPage, WorkoutDetail, CoachPage, ProfilePage, InsightsPage } from './src/pages';
 import { ProfileIcon, NotificationsIcon } from './src/components/ui';
 import AuthWrapper from './src/components/auth/AuthWrapper';
 import { colors, typography, spacing } from './src/styles/tokens';
@@ -31,6 +30,12 @@ type AuthStackParamList = {
 type PlanStackParamList = {
   PlanOverview: undefined;
   WeeklyView: undefined;
+  WeekDetail: {
+    weekNumber: number;
+    phase: string;
+    description: string;
+    workouts: any[];
+  };
   WorkoutDetail: {
     workoutId: string;
     status?: 'upcoming' | 'scheduled' | 'completed';
@@ -77,7 +82,6 @@ function AuthStackNavigator() {
     <AuthStack.Navigator
       screenOptions={{
         headerShown: false,
-        animationEnabled: true,
         cardStyleInterpolator: ({ current }) => ({
           cardStyle: {
             opacity: current.progress,
@@ -123,11 +127,11 @@ function PlanStackNavigator() {
           elevation: 0,
           borderBottomWidth: 0,
         },
-        headerTintColor: '#1C1C1E',
+        headerTintColor: colors.neutral.text,
         headerTitleStyle: {
           fontWeight: typography.weights.bold,
           fontSize: typography.sizes.lg,
-          color: '#1C1C1E',
+          color: colors.neutral.text,
         },
         headerBackTitleVisible: false,
         headerBackImage: ({ tintColor }) => (
@@ -169,6 +173,11 @@ function PlanStackNavigator() {
         options={{ title: 'Weekly View' }}
       />
       <PlanStack.Screen 
+        name="WeekDetail" 
+        component={WeekDetailPage} 
+        options={{ headerShown: false }}
+      />
+      <PlanStack.Screen 
         name="WorkoutDetail" 
         component={WorkoutDetail} 
         options={{ 
@@ -196,11 +205,11 @@ function DashboardStackNavigator() {
           elevation: 0,
           borderBottomWidth: 0,
         },
-        headerTintColor: '#1C1C1E',
+        headerTintColor: colors.neutral.text,
         headerTitleStyle: {
           fontWeight: typography.weights.bold,
           fontSize: typography.sizes.lg,
-          color: '#1C1C1E',
+          color: colors.neutral.text,
         },
         headerBackTitleVisible: false,
         headerBackImage: ({ tintColor }) => (
@@ -264,11 +273,11 @@ function CoachStackNavigator() {
           elevation: 0,
           borderBottomWidth: 0,
         },
-        headerTintColor: '#1C1C1E',
+        headerTintColor: colors.neutral.text,
         headerTitleStyle: {
           fontWeight: typography.weights.bold,
           fontSize: typography.sizes.lg,
-          color: '#1C1C1E',
+          color: colors.neutral.text,
         },
         headerBackTitleVisible: false,
         headerBackImage: ({ tintColor }) => (
@@ -325,11 +334,11 @@ function InsightsStackNavigator() {
           elevation: 0,
           borderBottomWidth: 0,
         },
-        headerTintColor: '#1C1C1E',
+        headerTintColor: colors.neutral.text,
         headerTitleStyle: {
           fontWeight: typography.weights.bold,
           fontSize: typography.sizes.lg,
-          color: '#1C1C1E',
+          color: colors.neutral.text,
         },
         headerBackTitleVisible: false,
         headerBackImage: ({ tintColor }) => (
@@ -399,7 +408,7 @@ function TabNavigator() {
 
             return <Ionicons name={iconName} size={size} color={color} />;
           },
-          tabBarActiveTintColor: '#1C1C1E',
+          tabBarActiveTintColor: colors.neutral.text,
           tabBarInactiveTintColor: colors.neutral.secondary,
           tabBarStyle: {
             backgroundColor: colors.neutral.cards,
@@ -415,11 +424,11 @@ function TabNavigator() {
             elevation: 0,
             borderBottomWidth: 0,
           },
-          headerTintColor: '#1C1C1E',
+          headerTintColor: colors.neutral.text,
           headerTitleStyle: {
             fontWeight: typography.weights.bold,
             fontSize: typography.sizes.lg,
-            color: '#1C1C1E',
+            color: colors.neutral.text,
           },
         })}
       >

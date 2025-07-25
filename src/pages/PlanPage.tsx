@@ -1,162 +1,157 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Text } from 'react-native';
-import WeekPlanHeader from '../components/plan/WeekPlanHeader';
-import WeekFocusCard from '../components/plan/WeekFocusCard';
-import WeekSelector from '../components/plan/WeekSelector';
-import WorkoutDetailCard from '../components/plan/WorkoutDetailCard';
-import { spacing } from '../styles/tokens';
+import React, { useEffect, useRef } from 'react';
+import { StyleSheet, ScrollView } from 'react-native';
+import WeekPlan from '../components/plan/WeekPlan';
+import RaceDate from '../components/plan/RaceDate';
+import { spacing, colors } from '../styles/tokens';
 
 export default function PlanPage() {
-  const [selectedWeek, setSelectedWeek] = useState(6); // Start on different week to show button
-  const actualCurrentWeek = 8; // This would come from your data/state
+  const currentWeek = 8; // This would come from your data/state
+  const totalWeeks = 12;
+  const scrollViewRef = useRef<ScrollView>(null);
+  const weekPositions = useRef<{ [key: number]: number }>({});
   
-  // Mock data for the components  
+  // Helper functions
   const getWeekPhase = (week: number) => {
     if (week < 5) return 'Base Building';
     if (week < 9) return 'Build Phase';
     return 'Peak & Taper';
   };
 
-  const weekData = {
-    weekNumber: selectedWeek,
-    totalWeeks: 12,
-    phase: getWeekPhase(selectedWeek),
-    description: selectedWeek < 5 
-      ? 'Focus on building aerobic capacity and establishing consistent training patterns. This week emphasizes longer, steady-state efforts.'
-      : selectedWeek < 9
-      ? 'Build specific race fitness with higher intensity workouts. Focus on lactate threshold and VO2 max development.'
-      : 'Fine-tune race fitness and begin tapering for peak performance. Reduce volume while maintaining intensity.',
-    totalWorkouts: 5,
-    completedWorkouts: selectedWeek === actualCurrentWeek ? 3 : selectedWeek < actualCurrentWeek ? 5 : 0,
-    totalMinutes: 420,
-    completedMinutes: selectedWeek === actualCurrentWeek ? 280 : selectedWeek < actualCurrentWeek ? 420 : 0,
+  const getWeekDescription = (week: number) => {
+    if (week < 5) {
+      return 'Focus on building aerobic capacity and establishing consistent training patterns. This week emphasizes longer, steady-state efforts to develop your aerobic base.';
+    } else if (week < 9) {
+      return 'Build specific race fitness with higher intensity workouts. Focus on lactate threshold and VO2 max development to improve your race-specific fitness.';
+    } else {
+      return 'Fine-tune race fitness and begin tapering for peak performance. Reduce volume while maintaining intensity to arrive at race day refreshed and ready.';
+    }
   };
 
-  const focusData = {
-    mainGoal: 'Build aerobic base and establish consistent training rhythm',
-    keyObjectives: [
-      'Develop efficient aerobic energy system',
-      'Practice race-day nutrition strategies',
-      'Build weekly training volume gradually',
-      'Focus on technique refinement'
-    ],
-    rationale: 'Base building is crucial for long-term performance gains. These steady-state workouts develop mitochondrial density and capillarization, creating the aerobic foundation needed for later intensity phases.',
+  // Generate mock workouts for a week
+  const generateWeekWorkouts = (weekNumber: number) => {
+    const baseDate = new Date(2024, 0, (weekNumber - 1) * 7 + 8); // Start from Jan 8, 2024
+    const disciplines = ['swim', 'bike', 'run', 'swim', 'brick', 'run', 'rest'];
+    
+    return disciplines.map((discipline, index) => {
+      const workoutDate = new Date(baseDate);
+      workoutDate.setDate(baseDate.getDate() + index);
+      
+      return {
+        id: `week${weekNumber}_day${index + 1}`,
+        discipline,
+        scheduled_date: workoutDate.toISOString(),
+        status: weekNumber < currentWeek ? 'completed' : 
+               weekNumber === currentWeek && index < 3 ? 'completed' : 
+               weekNumber === currentWeek ? 'scheduled' : 'upcoming',
+        workout_data: {
+          title: discipline === 'rest' ? 'Rest Day' : 
+                discipline === 'brick' ? 'Bike + Run' :
+                `${discipline.charAt(0).toUpperCase() + discipline.slice(1)} Workout`,
+          duration: discipline === 'rest' ? '0 min' : 
+                   discipline === 'swim' ? '45 min' :
+                   discipline === 'bike' ? '90 min' :
+                   discipline === 'run' ? '60 min' :
+                   '75 min', // brick
+        }
+      };
+    });
   };
-  
-  const weeks = Array.from({ length: 12 }, (_, i) => ({
-    number: i + 1,
-    phase: i < 4 ? 'Base Building' : i < 8 ? 'Build Phase' : 'Peak & Taper',
-    isCompleted: i + 1 < actualCurrentWeek,
-    isActive: i + 1 === actualCurrentWeek,
-  }));
 
-  const mockWorkouts = [
-    {
-      dayOfWeek: 'Monday',
-      date: 'Jul 15',
-      title: 'Recovery Swim',
-      subtitle: 'Easy aerobic',
-      description: 'Easy swim focusing on technique and form',
-      intensity: 'Zone 1-2',
-      duration: '45 min',
-      phases: '4 sets',
-      status: 'completed' as const,
-      completedStats: {
-        actualDuration: '42 min',
-        distance: '1.2 km',
-        feeling: 'good' as const,
-      },
-      coachNote: 'Great stroke technique improvement noticed. Keep focusing on bilateral breathing.',
-    },
-    {
-      dayOfWeek: 'Tuesday',
-      date: 'Jul 16',
-      title: 'Base Build Bike',
-      subtitle: 'Aerobic endurance',
-      description: 'Steady aerobic ride with cadence focus',
-      intensity: 'Zone 2',
-      duration: '90 min',
-      phases: '3 intervals',
-      status: 'completed' as const,
-      completedStats: {
-        actualDuration: '85 min',
-        avgHeartRate: '142 bpm',
-        feeling: 'excellent' as const,
-      },
-      coachNote: 'Perfect pacing and heart rate control. You\'re building great aerobic capacity.',
-    },
-    {
-      dayOfWeek: 'Wednesday',
-      date: 'Jul 17',
-      title: 'Tempo Run',
-      subtitle: 'Sustained effort',
-      description: 'Build sustained running pace with good form',
-      intensity: 'Zone 3-4',
-      duration: '60 min',
-      phases: '5 intervals',
-      status: 'completed' as const,
-      completedStats: {
-        actualDuration: '58 min',
-        avgHeartRate: '165 bpm',
-        feeling: 'tough' as const,
-      },
-      coachNote: 'Challenging workout completed well. Recovery focus for next 24 hours.',
-    },
-    {
-      dayOfWeek: 'Thursday',
-      date: 'Jul 18',
-      title: 'Recovery Swim',
-      subtitle: 'Active recovery',
-      description: 'Easy swim with drill focus',
-      intensity: 'Zone 1',
-      duration: '30 min',
-      phases: '6 drills',
-      status: 'scheduled' as const,
-    },
-    {
-      dayOfWeek: 'Friday',
-      date: 'Jul 19',
-      title: 'Brick Workout',
-      subtitle: 'Bike + Run',
-      description: 'Practice transition from bike to run',
-      intensity: 'Multi-Zone',
-      duration: '75 min',
-      phases: '3 phases',
-      status: 'upcoming' as const,
-      coachNote: 'First brick workout - expect legs to feel heavy initially',
-    },
-  ];
+  // Generate all weeks data with start dates
+  const planStartDate = new Date(2024, 0, 8); // Jan 8, 2024
+  const allWeeks = Array.from({ length: totalWeeks }, (_, i) => {
+    const weekNumber = i + 1;
+    const weekStartDate = new Date(planStartDate);
+    weekStartDate.setDate(planStartDate.getDate() + (weekNumber - 1) * 7);
+    
+    return {
+      weekNumber,
+      phase: getWeekPhase(weekNumber),
+      description: getWeekDescription(weekNumber),
+      workouts: generateWeekWorkouts(weekNumber),
+      isCurrentWeek: weekNumber === currentWeek,
+      weekStartDate,
+    };
+  });
+
+  // Calculate race date (12 weeks after plan start + 1 week buffer)
+  const raceDate = new Date(planStartDate);
+  raceDate.setDate(planStartDate.getDate() + (totalWeeks * 7) + 7);
+
+  // Keep chronological order
+  const sortedWeeks = allWeeks; // Already in chronological order
+
+  // Scroll to current week on component mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const currentWeekPosition = weekPositions.current[currentWeek];
+      if (scrollViewRef.current && currentWeekPosition !== undefined) {
+        scrollViewRef.current.scrollTo({
+          y: Math.max(0, currentWeekPosition - 100), // Scroll with some padding from top
+          animated: true
+        });
+      }
+    }, 500); // Longer delay to ensure all layouts are complete
+
+    return () => clearTimeout(timer);
+  }, [currentWeek]);
+
+  // Handle week layout to track positions
+  const handleWeekLayout = (weekNumber: number, y: number) => {
+    weekPositions.current[weekNumber] = y;
+    
+    // If this is the current week and all previous weeks have been measured, scroll
+    if (weekNumber === currentWeek) {
+      const allPreviousWeeksMeasured = Array.from({ length: currentWeek }, (_, i) => i + 1)
+        .every(week => weekPositions.current[week] !== undefined);
+      
+      if (allPreviousWeeksMeasured && scrollViewRef.current) {
+        setTimeout(() => {
+          scrollViewRef.current?.scrollTo({
+            y: Math.max(0, y - 100),
+            animated: true
+          });
+        }, 100);
+      }
+    }
+  };
+
+  const handleWorkoutPress = (workoutId: string) => {
+    console.log('Navigate to workout:', workoutId);
+  };
 
   return (
     <ScrollView 
+      ref={scrollViewRef}
       style={styles.container}
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      <WeekPlanHeader {...weekData} />
+      {sortedWeeks.map((week) => (
+        <WeekPlan
+          key={week.weekNumber}
+          weekNumber={week.weekNumber}
+          phase={week.phase}
+          description={week.description}
+          workouts={week.workouts}
+          isCurrentWeek={week.isCurrentWeek}
+          weekStartDate={week.weekStartDate}
+          currentWeekNumber={currentWeek}
+          onWorkoutPress={handleWorkoutPress}
+          onLayout={(event) => {
+            const { y } = event.nativeEvent.layout;
+            handleWeekLayout(week.weekNumber, y);
+          }}
+        />
+      ))}
       
-      <WeekFocusCard
-        {...focusData}
-        onMorePress={() => console.log('Show more insights')}
+      {/* Race Date Component */}
+      <RaceDate
+        raceName="Summer Olympic Triathlon"
+        raceDate={raceDate}
+        raceType="Olympic Triathlon"
+        location="Lakefront Park, Chicago"
       />
-      
-      <WeekSelector
-        weeks={weeks}
-        currentWeek={actualCurrentWeek}
-        selectedWeek={selectedWeek}
-        onWeekSelect={setSelectedWeek}
-      />
-      
-      <View style={styles.workoutsSection}>
-        <Text style={styles.sectionTitle}>This Week's Workouts</Text>
-        {mockWorkouts.map((workout, index) => (
-          <WorkoutDetailCard
-            key={index}
-            {...workout}
-            onPress={() => console.log('Navigate to workout:', workout.title)}
-          />
-        ))}
-      </View>
     </ScrollView>
   );
 }
@@ -164,23 +159,11 @@ export default function PlanPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.neutral.background,
   },
   
   content: {
     paddingTop: spacing[2],
     paddingBottom: spacing[8],
-  },
-  
-  workoutsSection: {
-    marginBottom: 20,
-  },
-  
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#000',
-    marginBottom: 16,
-    paddingHorizontal: 16,
   },
 });

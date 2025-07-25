@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { BodyText, CaptionText } from '../ui/Typography';
-import { colors, spacing } from '../../styles/tokens';
+import { CaptionText } from '../ui/Typography';
+import { colors, spacing, typography, borderRadius } from '../../styles/tokens';
 
 interface TrendChartProps {
   title: string;
@@ -52,7 +52,7 @@ export default function TrendChart({ title, data, trend, changeText }: TrendChar
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.neutral.cards,
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
     padding: spacing[4],
     marginBottom: spacing[3],
   },
@@ -67,14 +67,14 @@ const styles = StyleSheet.create({
   title: {
     color: colors.neutral.secondary,
     textTransform: 'uppercase',
-    fontSize: 11,
+    fontSize: typography.sizes.xs - 1,
     letterSpacing: 0.5,
-    fontWeight: '500',
+    fontWeight: typography.weights.medium,
   },
   
   change: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.weights.semibold,
   },
   
   chart: {
@@ -99,12 +99,12 @@ const styles = StyleSheet.create({
   bar: {
     width: '80%',
     backgroundColor: colors.neutral.separator,
-    borderRadius: 4,
+    borderRadius: borderRadius.sm,
     minHeight: 4,
   },
   
   label: {
-    fontSize: 10,
+    fontSize: typography.sizes.xs - 2,
     color: colors.neutral.secondary,
     marginTop: spacing[1],
   },

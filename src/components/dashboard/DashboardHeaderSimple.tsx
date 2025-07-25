@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, typography, spacing, borderRadius, shadows } from '../../styles/tokens';
 
 interface DashboardHeaderSimpleProps {
   onMorePress?: () => void;
@@ -18,10 +19,10 @@ interface DashboardHeaderSimpleProps {
 export default function DashboardHeaderSimple({ onMorePress, userName = 'Cole', trainingInfo }: DashboardHeaderSimpleProps) {
   const getDisciplineGradientColors = (discipline: string): string[] => {
     switch (discipline) {
-      case 'swim': return ['#0EA5E9', '#0284C7'];
-      case 'bike': return ['#FB923C', '#F97316'];
-      case 'run': return ['#4ADE80', '#22C55E'];
-      default: return ['#9CA3AF', '#6B7280'];
+      case 'swim': return [colors.disciplines.swim, colors.disciplines.swim];
+      case 'bike': return [colors.disciplines.bike, colors.disciplines.bike];
+      case 'run': return [colors.disciplines.run, colors.disciplines.run];
+      default: return [colors.system.gray, colors.system.gray];
     }
   };
 
@@ -39,7 +40,7 @@ export default function DashboardHeaderSimple({ onMorePress, userName = 'Cole', 
       <View style={styles.mainCard}>
         <View style={styles.welcomeSection}>
           <View style={styles.greetingRow}>
-            <Ionicons name={greeting.icon as any} size={20} color="#007AFF" style={styles.welcomeIcon} />
+            <Ionicons name={greeting.icon as any} size={20} color={colors.primary} style={styles.welcomeIcon} />
             <View style={styles.welcomeTextContainer}>
               <Text style={styles.greetingText}>{greeting.text}, {userName}.</Text>
               <Text style={styles.subtitle}>Let's crush today's training</Text>
@@ -48,7 +49,7 @@ export default function DashboardHeaderSimple({ onMorePress, userName = 'Cole', 
         </View>
 
         <View style={styles.programBadge}>
-          <Ionicons name="medal-outline" size={14} color="#3B82F6" />
+          <Ionicons name="medal-outline" size={14} color={colors.system.blue} />
           <Text style={styles.programBadgeText}>{trainingInfo?.program || 'Olympic Distance Program'}</Text>
         </View>
 
@@ -81,7 +82,7 @@ export default function DashboardHeaderSimple({ onMorePress, userName = 'Cole', 
                     {
                       backgroundColor: isCompleted 
                         ? gradientColors[0] 
-                        : '#E5E7EB'
+                        : colors.neutral.background
                     }
                   ]}
                 />
@@ -94,12 +95,12 @@ export default function DashboardHeaderSimple({ onMorePress, userName = 'Cole', 
       <View style={styles.aiInsight}>
         <View style={styles.aiHeader}>
           <View style={styles.aiTitleRow}>
-            <Ionicons name="analytics-outline" size={16} color="rgba(255,255,255,0.75)" />
+            <Ionicons name="analytics-outline" size={16} color={colors.white + 'BF'} />
             <Text style={styles.aiTitle}>TRAINING INSIGHT</Text>
           </View>
           <TouchableOpacity style={styles.moreButton} onPress={onMorePress}>
             <Text style={styles.moreText}>More</Text>
-            <Ionicons name="chevron-forward" size={12} color="#60A5FA" />
+            <Ionicons name="chevron-forward" size={12} color={colors.system.teal} />
           </TouchableOpacity>
         </View>
         <Text style={styles.aiText}>
@@ -112,25 +113,23 @@ export default function DashboardHeaderSimple({ onMorePress, userName = 'Cole', 
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 16,
-    marginVertical: 20,
-    borderRadius: 16,
+    marginHorizontal: spacing[4],
+    marginVertical: spacing[5],
+    borderRadius: borderRadius.lg,
     overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
+    backgroundColor: colors.neutral.cards,
+    ...shadows.lg,
     shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.1,
     shadowRadius: 25,
-    elevation: 5,
   },
   
   mainCard: {
-    padding: 20,
-    backgroundColor: '#FFFFFF',
+    padding: spacing[5],
+    backgroundColor: colors.neutral.cards,
   },
 
   welcomeSection: {
-    marginBottom: 20,
+    marginBottom: spacing[5],
   },
 
   greetingRow: {
@@ -139,7 +138,7 @@ const styles = StyleSheet.create({
   },
 
   welcomeIcon: {
-    marginRight: 10,
+    marginRight: spacing[2] + spacing[1],
   },
 
   welcomeTextContainer: {
@@ -147,24 +146,24 @@ const styles = StyleSheet.create({
   },
 
   greetingText: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#1C1C1E',
+    fontSize: typography.sizes['2xl'] - 2,
+    fontWeight: typography.weights.bold,
+    color: colors.neutral.text,
     letterSpacing: -0.3,
   },
 
   subtitle: {
-    fontSize: 15,
-    color: '#6B7280',
-    fontWeight: '500',
-    marginTop: 2,
+    fontSize: typography.sizes.base - 1,
+    color: colors.neutral.secondary,
+    fontWeight: typography.weights.medium,
+    marginTop: spacing[1] / 2,
   },
   
   statsContainer: {
     flexDirection: 'row',
-    backgroundColor: '#F2F2F7',
-    borderRadius: 8,
-    paddingVertical: 16,
+    backgroundColor: colors.system.gray6,
+    borderRadius: borderRadius.base,
+    paddingVertical: spacing[4],
     paddingHorizontal: 0,
     alignItems: 'center',
     justifyContent: 'space-evenly',
@@ -177,15 +176,15 @@ const styles = StyleSheet.create({
   },
   
   statValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1C1C1E',
-    marginBottom: 2,
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.semibold,
+    color: colors.neutral.text,
+    marginBottom: spacing[1] / 2,
   },
   
   statLabel: {
-    fontSize: 10,
-    color: '#8E8E93',
+    fontSize: typography.sizes.xs - 2,
+    color: colors.system.gray,
     letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
@@ -193,76 +192,76 @@ const styles = StyleSheet.create({
   statDivider: {
     width: 1,
     height: 24,
-    backgroundColor: '#D1D1D6',
+    backgroundColor: colors.neutral.border,
   },
 
   programBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#EFF6FF',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginBottom: 16,
-    marginHorizontal: 20,
+    backgroundColor: colors.system.blue + '20',
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[2],
+    borderRadius: borderRadius.full,
+    marginBottom: spacing[4],
+    marginHorizontal: spacing[5],
     borderWidth: 1,
-    borderColor: '#93C5FD',
+    borderColor: colors.system.blue + '50',
   },
 
   programBadgeText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#3B82F6',
-    marginLeft: 6,
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.medium,
+    color: colors.system.blue,
+    marginLeft: spacing[1] + spacing[1]/2,
   },
 
   progressSection: {
-    marginTop: 16,
+    marginTop: spacing[4],
   },
 
   progressHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing[3],
   },
 
   progressTitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1C1C1E',
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.medium,
+    color: colors.neutral.text,
   },
 
   progressCount: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1C1C1E',
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.semibold,
+    color: colors.neutral.text,
   },
 
   progressBars: {
     flexDirection: 'row',
-    gap: 8,
-    marginBottom: 8,
+    gap: spacing[2],
+    marginBottom: spacing[2],
   },
 
   progressBar: {
     flex: 1,
     height: 6,
-    borderRadius: 3,
+    borderRadius: borderRadius.sm - 1,
   },
   
   aiInsight: {
-    backgroundColor: '#1C1C1E',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    backgroundColor: colors.neutral.text,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[4],
   },
   
   aiHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: spacing[2],
   },
   
   aiTitleRow: {
@@ -271,11 +270,11 @@ const styles = StyleSheet.create({
   },
   
   aiTitle: {
-    fontSize: 10,
-    color: 'rgba(255,255,255,0.75)',
-    fontWeight: '500',
+    fontSize: typography.sizes.xs - 2,
+    color: colors.white + 'BF',
+    fontWeight: typography.weights.medium,
     letterSpacing: 0.5,
-    marginLeft: 6,
+    marginLeft: spacing[1] + spacing[1]/2,
     textTransform: 'uppercase',
   },
   
@@ -285,15 +284,15 @@ const styles = StyleSheet.create({
   },
   
   moreText: {
-    fontSize: 12,
-    color: '#5AC8FA',
-    fontWeight: '500',
-    marginRight: 4,
+    fontSize: typography.sizes.xs,
+    color: colors.system.teal,
+    fontWeight: typography.weights.medium,
+    marginRight: spacing[1],
   },
   
   aiText: {
-    fontSize: 14,
-    color: '#FFFFFF',
+    fontSize: typography.sizes.sm,
+    color: colors.white,
     lineHeight: 20,
   },
 });

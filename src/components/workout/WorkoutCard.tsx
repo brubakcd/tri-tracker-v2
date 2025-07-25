@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BodyText, BodyTextLarge, CaptionText } from '../ui/Typography';
 import Card from '../ui/Card';
-import { colors, spacing, borderRadius } from '../../styles/tokens';
+import { colors, spacing, borderRadius, typography } from '../../styles/tokens';
 
 interface WorkoutCardProps {
   workout: {
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   },
   
   disciplineText: {
-    fontWeight: '600',
+    fontWeight: typography.weights.semibold,
     color: colors.neutral.text,
   },
   
@@ -254,8 +254,8 @@ const styles = StyleSheet.create({
   
   statusText: {
     color: colors.neutral.cards,
-    fontWeight: '500',
-    fontSize: 11,
+    fontWeight: typography.weights.medium,
+    fontSize: typography.sizes.xs - 1,
   },
   
   content: {
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   },
   
   title: {
-    fontWeight: '600',
+    fontWeight: typography.weights.semibold,
     color: colors.neutral.text,
     marginBottom: spacing[2],
   },

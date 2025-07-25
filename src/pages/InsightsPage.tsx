@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   },
 
   countdownNumber: {
-    fontSize: 32,
+    fontSize: typography.sizes['3xl'] + 2,
     fontWeight: typography.weights.bold,
     color: colors.neutral.text,
     lineHeight: 32,
@@ -404,9 +404,9 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#000',
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    color: colors.neutral.text,
     marginBottom: spacing[4],
     paddingHorizontal: spacing[4],
   },
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   },
 
   progressPercentage: {
-    fontSize: 24,
+    fontSize: typography.sizes['2xl'],
     fontWeight: typography.weights.semibold,
     color: colors.neutral.text,
   },
@@ -560,14 +560,14 @@ const styles = StyleSheet.create({
   },
 
   kpiValue: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.semibold,
     color: colors.neutral.text,
     marginVertical: spacing[1],
   },
 
   kpiLabel: {
-    fontSize: 11,
+    fontSize: typography.sizes.xs,
     color: colors.neutral.secondary,
     textAlign: 'center',
   },
