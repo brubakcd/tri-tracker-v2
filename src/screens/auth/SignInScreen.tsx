@@ -81,7 +81,7 @@ export const SignInScreen: React.FC = () => {
 
         <View style={styles.signUpContainer}>
           <Text style={styles.signUpText}>
-            Don't have an account?{' '}
+            Don't have an account? 
           </Text>
           <TouchableOpacity onPress={handleSignUp}>
             <Text style={styles.signUpLink}>

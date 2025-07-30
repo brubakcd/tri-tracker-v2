@@ -50,7 +50,7 @@ export default function WorkoutDetailCard({
   const getStatusBadgeStyle = () => {
     switch (status) {
       case 'completed': return { backgroundColor: '#34C75920', color: '#34C759' };
-      case 'scheduled': return { backgroundColor: '#007AFF20', color: '#007AFF' };
+      case 'scheduled': return { backgroundColor: '#34C75920', color: '#34C759' }; // Use green for "Today"
       case 'upcoming': return { backgroundColor: '#8E8E9320', color: '#8E8E93' };
       default: return { backgroundColor: '#8E8E9320', color: '#8E8E93' };
     }

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BodyText, BodyTextLarge, CaptionText } from '../components/ui/Typography';
 import Card from '../components/ui/Card';
@@ -19,6 +20,7 @@ interface Message {
 }
 
 export default function CoachPage({ navigation }: CoachPageProps) {
+  const scrollViewRef = useRef<ScrollView>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -29,6 +31,40 @@ export default function CoachPage({ navigation }: CoachPageProps) {
   ]);
   const [inputText, setInputText] = useState('');
 
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      // Scroll to bottom when keyboard appears
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      // Optional: maintain scroll position when keyboard hides
+      // You can remove this if you don't want any behavior on keyboard hide
+    });
+
+    return () => {
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
+    };
+  }, []);
+
+  // Scroll to top on tab press
+  useEffect(() => {
+    const parent = navigation.getParent();
+    if (!parent) return;
+
+    const unsubscribe = parent.addListener('tabPress', () => {
+      if (navigation.isFocused()) {
+        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+
   // Get AI insights
   const latestInsight = getLatestInsight('user_1');
   const dailyMotivation = getDailyMotivation('user_1');
@@ -36,10 +72,16 @@ export default function CoachPage({ navigation }: CoachPageProps) {
   // Quick action prompts
   const quickActions = [
     { icon: 'fitness', text: 'Analyze my progress', color: colors.system.blue },
-    { icon: 'nutrition', text: 'Nutrition advice', color: colors.system.green },
+    { icon: 'timer', text: 'Pacing strategy', color: colors.system.green },
     { icon: 'bed', text: 'Recovery tips', color: colors.system.purple },
     { icon: 'calendar', text: 'Adjust schedule', color: colors.system.orange },
   ];
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  };
 
   const handleSend = () => {
     if (inputText.trim()) {
@@ -52,6 +94,7 @@ export default function CoachPage({ navigation }: CoachPageProps) {
       
       setMessages([...messages, userMessage]);
       setInputText('');
+      scrollToBottom();
       
       // Simulate AI response
       setTimeout(() => {
@@ -62,6 +105,7 @@ export default function CoachPage({ navigation }: CoachPageProps) {
           timestamp: new Date(),
         };
         setMessages(prev => [...prev, aiResponse]);
+        scrollToBottom();
       }, 1000);
     }
   };
@@ -74,16 +118,14 @@ export default function CoachPage({ navigation }: CoachPageProps) {
       timestamp: new Date(),
     };
     setMessages([...messages, userMessage]);
+    scrollToBottom();
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-    >
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
+    <View style={styles.container}>
+      {/* Hero Section - Full Width Header */}
+      <View style={styles.heroSection}>
+        <View style={styles.heroContent}>
           <View style={styles.titleRow}>
             <Text style={styles.headerTitle}>AI Coach</Text>
             <View style={styles.statusIndicator}>
@@ -95,84 +137,70 @@ export default function CoachPage({ navigation }: CoachPageProps) {
         </View>
       </View>
 
-      <ScrollView 
-        style={styles.messagesContainer}
-        contentContainerStyle={styles.messagesContent}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView 
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        {/* Daily Motivation Card */}
-        {dailyMotivation && messages.length === 1 && (
-          <Card style={styles.motivationCard}>
-            <View style={styles.motivationHeader}>
-              <Ionicons name="sparkles" size={20} color={colors.system.yellow} />
-              <BodyText style={styles.motivationTitle}>Daily Motivation</BodyText>
-            </View>
-            <CaptionText style={styles.motivationText}>{dailyMotivation.content}</CaptionText>
-          </Card>
-        )}
-
-        {/* Latest Insight Card */}
-        {latestInsight && messages.length === 1 && (
-          <Card style={styles.insightCard}>
-            <View style={styles.insightHeader}>
-              <Ionicons name="bulb-outline" size={20} color={colors.system.blue} />
-              <BodyText style={styles.insightTitle}>Latest Insight</BodyText>
-            </View>
-            <CaptionText style={styles.insightText}>{latestInsight.content}</CaptionText>
-          </Card>
-        )}
-
-        {/* Messages */}
-        {messages.map((message, index) => (
-          <View
-            key={message.id}
-            style={[
-              styles.messageWrapper,
-              message.isUser ? styles.userMessageWrapper : styles.aiMessageWrapper
-            ]}
+        <View style={styles.chatContentContainer}>
+          <ScrollView 
+            ref={scrollViewRef}
+            style={styles.messagesContainer}
+            contentContainerStyle={styles.messagesContent}
+            showsVerticalScrollIndicator={false}
           >
-            {!message.isUser && (
-              <View style={styles.aiAvatar}>
-                <Ionicons name="sparkles" size={16} color={colors.primary} />
-              </View>
-            )}
-            <View
-              style={[
-                styles.messageBubble,
-                message.isUser ? styles.userMessage : styles.aiMessage
-              ]}
-            >
-              <Text style={[
-                styles.messageText,
-                message.isUser ? styles.userMessageText : styles.aiMessageText
-              ]}>
-                {message.text}
-              </Text>
-            </View>
-          </View>
-        ))}
-
-        {/* Quick Actions - shown only after initial message */}
-        {messages.length === 1 && (
-          <View style={styles.quickActionsContainer}>
-            <CaptionText style={styles.quickActionsTitle}>Quick Actions</CaptionText>
-            <View style={styles.quickActionsGrid}>
-              {quickActions.map((action, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.quickActionButton}
-                  onPress={() => handleQuickAction(action.text)}
-                >
-                  <View style={[styles.quickActionIcon, { backgroundColor: action.color + '20' }]}>
-                    <Ionicons name={action.icon as any} size={20} color={action.color} />
+            {/* Messages */}
+            {messages.map((message, index) => (
+              <View
+                key={message.id}
+                style={[
+                  styles.messageWrapper,
+                  message.isUser ? styles.userMessageWrapper : styles.aiMessageWrapper
+                ]}
+              >
+                {!message.isUser && (
+                  <View style={styles.aiAvatar}>
+                    <Ionicons name="sparkles" size={16} color={colors.primary} />
                   </View>
-                  <CaptionText style={styles.quickActionText}>{action.text}</CaptionText>
-                </TouchableOpacity>
-              ))}
+                )}
+                <View
+                  style={[
+                    styles.messageBubble,
+                    message.isUser ? styles.userMessage : styles.aiMessage
+                  ]}
+                >
+                  <Text style={[
+                    styles.messageText,
+                    message.isUser ? styles.userMessageText : styles.aiMessageText
+                  ]}>
+                    {message.text}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+
+          {/* Quick Actions - positioned at bottom to align with input */}
+          {messages.length === 1 && (
+            <View style={styles.quickActionsContainer}>
+              <CaptionText style={styles.quickActionsTitle}>Quick Actions</CaptionText>
+              <View style={styles.quickActionsGrid}>
+                {quickActions.map((action, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.quickActionButton}
+                    onPress={() => handleQuickAction(action.text)}
+                  >
+                    <View style={[styles.quickActionIcon, { backgroundColor: action.color + '20' }]}>
+                      <Ionicons name={action.icon as any} size={20} color={action.color} />
+                    </View>
+                    <CaptionText style={styles.quickActionText}>{action.text}</CaptionText>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
-          </View>
-        )}
-      </ScrollView>
+          )}
+        </View>
 
       {/* Input Area */}
       <View style={styles.inputContainer}>
@@ -183,6 +211,12 @@ export default function CoachPage({ navigation }: CoachPageProps) {
             placeholderTextColor={colors.neutral.secondary}
             value={inputText}
             onChangeText={setInputText}
+            onFocus={() => {
+              // Scroll to bottom when input is focused
+              setTimeout(() => {
+                scrollViewRef.current?.scrollToEnd({ animated: true });
+              }, 300);
+            }}
             multiline
             maxHeight={100}
           />
@@ -194,7 +228,7 @@ export default function CoachPage({ navigation }: CoachPageProps) {
             <Ionicons 
               name="send" 
               size={20} 
-              color={inputText.trim() ? colors.neutral.white : colors.neutral.secondary} 
+              color={inputText.trim() ? colors.neutral.cards : colors.neutral.secondary} 
             />
           </TouchableOpacity>
         </View>
@@ -202,7 +236,8 @@ export default function CoachPage({ navigation }: CoachPageProps) {
           AI suggestions are for guidance only. Always consult with professionals for medical advice.
         </CaptionText>
       </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -212,17 +247,21 @@ const styles = StyleSheet.create({
     backgroundColor: colors.neutral.background,
   },
 
-  header: {
+  heroSection: {
     backgroundColor: colors.neutral.cards,
-    paddingHorizontal: spacing[4],
-    paddingTop: spacing[4],
-    paddingBottom: spacing[3],
+    paddingTop: 50, // Extend into status bar area
+    paddingBottom: spacing[4],
     borderBottomWidth: 1,
     borderBottomColor: colors.neutral.separator,
   },
 
-  headerContent: {
-    gap: spacing[1],
+  heroContent: {
+    paddingHorizontal: spacing[4],
+    paddingTop: spacing[2], // Additional padding for text positioning
+  },
+
+  keyboardAvoidingView: {
+    flex: 1,
   },
 
   titleRow: {
@@ -264,60 +303,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
+  chatContentContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+
   messagesContainer: {
     flex: 1,
   },
 
   messagesContent: {
-    padding: spacing[4],
-    paddingBottom: spacing[8],
+    paddingHorizontal: spacing[4],
+    paddingTop: spacing[8],
+    paddingBottom: spacing[4],
+    flexGrow: 1,
+    justifyContent: 'flex-end',
   },
 
-  motivationCard: {
-    marginBottom: spacing[4],
-    backgroundColor: colors.system.yellow + '10',
-    borderWidth: 1,
-    borderColor: colors.system.yellow + '30',
-  },
-
-  motivationHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[2],
-    marginBottom: spacing[2],
-  },
-
-  motivationTitle: {
-    fontWeight: typography.weights.semibold,
-    color: colors.neutral.text,
-  },
-
-  motivationText: {
-    lineHeight: 18,
-  },
-
-  insightCard: {
-    marginBottom: spacing[4],
-    backgroundColor: colors.system.blue + '10',
-    borderWidth: 1,
-    borderColor: colors.system.blue + '30',
-  },
-
-  insightHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[2],
-    marginBottom: spacing[2],
-  },
-
-  insightTitle: {
-    fontWeight: typography.weights.semibold,
-    color: colors.neutral.text,
-  },
-
-  insightText: {
-    lineHeight: 18,
-  },
 
   messageWrapper: {
     marginBottom: spacing[3],
@@ -349,7 +351,7 @@ const styles = StyleSheet.create({
   },
 
   userMessage: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.neutral.text,
     borderBottomRightRadius: 4,
   },
 
@@ -366,7 +368,7 @@ const styles = StyleSheet.create({
   },
 
   userMessageText: {
-    color: colors.neutral.white,
+    color: colors.neutral.cards,
   },
 
   aiMessageText: {
@@ -374,7 +376,9 @@ const styles = StyleSheet.create({
   },
 
   quickActionsContainer: {
-    marginTop: spacing[6],
+    paddingHorizontal: spacing[4],
+    paddingBottom: spacing[4],
+    paddingTop: spacing[3],
   },
 
   quickActionsTitle: {
@@ -417,7 +421,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.neutral.cards,
     paddingHorizontal: spacing[4],
     paddingTop: spacing[3],
-    paddingBottom: spacing[2],
+    paddingBottom: spacing[4], // Increased bottom padding
     borderTopWidth: 1,
     borderTopColor: colors.neutral.separator,
   },
@@ -447,7 +451,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.neutral.text,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -460,6 +464,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     textAlign: 'center',
     color: colors.neutral.secondary,
-    marginBottom: spacing[1],
+    marginBottom: 0, // Remove bottom margin to reduce gap
   },
 });

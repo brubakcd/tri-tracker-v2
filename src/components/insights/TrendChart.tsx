@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     padding: spacing[4],
     marginBottom: spacing[3],
+    marginHorizontal: spacing[4],
   },
   
   header: {

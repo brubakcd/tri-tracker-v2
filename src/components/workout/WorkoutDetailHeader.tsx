@@ -14,6 +14,7 @@ interface WorkoutDetailHeaderProps {
   phases: string;
   status: 'completed' | 'scheduled' | 'upcoming';
   workoutOverview: string;
+  discipline?: 'swim' | 'bike' | 'run' | 'brick' | 'rest';
 }
 
 export default function WorkoutDetailHeader({
@@ -27,20 +28,29 @@ export default function WorkoutDetailHeader({
   phases,
   status,
   workoutOverview,
+  discipline,
 }: WorkoutDetailHeaderProps) {
-  const getStatusDotColor = () => {
-    switch (status) {
-      case 'completed': return colors.status.completed;
-      case 'scheduled': return colors.status.scheduled;
-      case 'upcoming': return colors.neutral.secondary;
-      default: return colors.neutral.secondary;
+  const getDisciplineColor = (disciplineType?: string) => {
+    switch (disciplineType) {
+      case 'swim': return colors.disciplines.swim;
+      case 'bike': return colors.disciplines.bike;
+      case 'run': return colors.disciplines.run;
+      case 'brick': return colors.disciplines.bike; // Use bike color for brick
+      default: return colors.primary;
     }
+  };
+
+  const disciplineColor = getDisciplineColor(discipline);
+
+  const getStatusDotColor = () => {
+    // Use discipline color for status dot
+    return disciplineColor;
   };
 
   const getStatusBadgeStyle = () => {
     switch (status) {
       case 'completed': return { backgroundColor: colors.status.completed + '20', color: colors.status.completed };
-      case 'scheduled': return { backgroundColor: colors.status.scheduled + '20', color: colors.status.scheduled };
+      case 'scheduled': return { backgroundColor: colors.status.completed + '20', color: colors.status.completed }; // Use green for "Today"
       case 'upcoming': return { backgroundColor: colors.neutral.secondary + '20', color: colors.neutral.secondary };
       default: return { backgroundColor: colors.neutral.secondary + '20', color: colors.neutral.secondary };
     }
@@ -84,7 +94,7 @@ export default function WorkoutDetailHeader({
         <Text style={styles.description}>{description}</Text>
 
         {/* Metrics */}
-        <View style={styles.metrics}>
+        <View style={[styles.metrics, { backgroundColor: disciplineColor + '10' }]}>
           <View style={styles.metricItem}>
             <Text style={styles.metricValue}>{intensity}</Text>
             <Text style={styles.metricLabel}>INTENSITY</Text>
@@ -122,7 +132,7 @@ export default function WorkoutDetailHeader({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.neutral.cards,
     borderRadius: 16,
     padding: 20,
     marginHorizontal: 16,
@@ -256,7 +266,7 @@ const styles = StyleSheet.create({
 
   overviewTitle: {
     color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '500',
     letterSpacing: 0.5,
     marginLeft: 6,
@@ -265,7 +275,7 @@ const styles = StyleSheet.create({
 
   overviewText: {
     color: '#FFFFFF',
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 15,
+    lineHeight: 22,
   },
 });

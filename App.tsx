@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { TouchableOpacity, Text } from 'react-native';
 import { Asset } from 'expo-asset';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -7,6 +8,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Dashboard, PlanPage, WeeklyView, WeekDetailPage, WorkoutDetail, CoachPage, ProfilePage, InsightsPage } from './src/pages';
+import AllInsightsPage from './src/pages/AllInsightsPage';
 import { ProfileIcon, NotificationsIcon } from './src/components/ui';
 import AuthWrapper from './src/components/auth/AuthWrapper';
 import { colors, typography, spacing } from './src/styles/tokens';
@@ -82,11 +84,15 @@ function AuthStackNavigator() {
     <AuthStack.Navigator
       screenOptions={{
         headerShown: false,
-        cardStyleInterpolator: ({ current }) => ({
+        cardStyleInterpolator: () => ({
           cardStyle: {
-            opacity: current.progress,
+            opacity: 1,
           },
         }),
+        transitionSpec: {
+          open: { animation: 'timing', config: { duration: 0 } },
+          close: { animation: 'timing', config: { duration: 0 } },
+        },
       }}
     >
       <AuthStack.Screen 
@@ -180,9 +186,33 @@ function PlanStackNavigator() {
       <PlanStack.Screen 
         name="WorkoutDetail" 
         component={WorkoutDetail} 
-        options={{ 
+        options={({ navigation }) => ({ 
           title: 'Workout Detail',
-        }}
+          headerLeft: () => (
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingLeft: spacing[4],
+                marginLeft: 0,
+              }}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="chevron-back" size={24} color={colors.neutral.text} />
+              <Text style={{
+                fontSize: typography.sizes.base,
+                fontWeight: typography.weights.medium,
+                color: colors.neutral.text,
+                marginLeft: spacing[1],
+              }}>Back</Text>
+            </TouchableOpacity>
+          ),
+          headerLeftContainerStyle: {
+            paddingLeft: 0, // Remove default padding to align with page content
+          },
+          headerRight: () => null, // Remove notification icon
+        })}
       />
       <PlanStack.Screen 
         name="Profile" 
@@ -248,9 +278,33 @@ function DashboardStackNavigator() {
       <DashboardStack.Screen 
         name="WorkoutDetail" 
         component={WorkoutDetail} 
-        options={{ 
+        options={({ navigation }) => ({ 
           title: 'Workout Detail',
-        }}
+          headerLeft: () => (
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingLeft: spacing[4],
+                marginLeft: 0,
+              }}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="chevron-back" size={24} color={colors.neutral.text} />
+              <Text style={{
+                fontSize: typography.sizes.base,
+                fontWeight: typography.weights.medium,
+                color: colors.neutral.text,
+                marginLeft: spacing[1],
+              }}>Back</Text>
+            </TouchableOpacity>
+          ),
+          headerLeftContainerStyle: {
+            paddingLeft: 0, // Remove default padding to align with page content
+          },
+          headerRight: () => null, // Remove notification icon
+        })}
       />
       <DashboardStack.Screen 
         name="Profile" 
@@ -311,7 +365,7 @@ function CoachStackNavigator() {
       <CoachStack.Screen 
         name="CoachHome" 
         component={CoachPage} 
-        options={{ title: 'Coach' }}
+        options={{ headerShown: false }}
       />
       <CoachStack.Screen 
         name="Profile" 
@@ -373,6 +427,37 @@ function InsightsStackNavigator() {
         name="InsightsHome" 
         component={InsightsPage} 
         options={{ title: 'Insights' }}
+      />
+      <InsightsStack.Screen 
+        name="AllInsights" 
+        component={AllInsightsPage} 
+        options={({ navigation }) => ({ 
+          title: 'All Training Insights',
+          headerLeft: () => (
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingLeft: spacing[4],
+                marginLeft: 0,
+              }}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="chevron-back" size={24} color={colors.neutral.text} />
+              <Text style={{
+                fontSize: typography.sizes.base,
+                fontWeight: typography.weights.medium,
+                color: colors.neutral.text,
+                marginLeft: spacing[1],
+              }}>Back</Text>
+            </TouchableOpacity>
+          ),
+          headerLeftContainerStyle: {
+            paddingLeft: 0, // Remove default padding to align with page content
+          },
+          headerRight: () => null, // Remove notification icon
+        })}
       />
       <InsightsStack.Screen 
         name="Profile" 

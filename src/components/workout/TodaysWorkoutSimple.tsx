@@ -13,8 +13,12 @@ export default function TodaysWorkoutSimple({ onPress }: TodaysWorkoutSimpleProp
   
   if (!todaysWorkout) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.title}>No workout scheduled for today</Text>
+      <View style={[styles.container, styles.restDayContainer]}>
+        <View style={styles.restDayContent}>
+          <Ionicons name="moon-outline" size={24} color={colors.system.purple} />
+          <Text style={styles.restDayTitle}>Rest Day</Text>
+          <Text style={styles.restDaySubtitle}>Focus on recovery and preparation</Text>
+        </View>
       </View>
     );
   }
@@ -44,11 +48,23 @@ export default function TodaysWorkoutSimple({ onPress }: TodaysWorkoutSimpleProp
     ? todaysWorkout.workout_data.coach_notes[0]
     : todaysWorkout.workout_data.coach_notes;
 
+  const getDisciplineColor = (discipline: string) => {
+    switch (discipline) {
+      case 'swim': return colors.disciplines.swim;
+      case 'bike': return colors.disciplines.bike;
+      case 'run': return colors.disciplines.run;
+      case 'brick': return colors.disciplines.bike; // Use bike color for brick
+      default: return colors.primary;
+    }
+  };
+
+  const disciplineColor = getDisciplineColor(todaysWorkout.discipline);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.titleSection}>
-          <View style={styles.statusDot} />
+          <View style={[styles.statusDot, { backgroundColor: disciplineColor }]} />
           <View>
             <Text style={styles.title}>{todaysWorkout.workout_data.title}</Text>
             <Text style={styles.subtitle}>{getSubtitle(todaysWorkout.discipline)}</Text>
@@ -66,7 +82,7 @@ export default function TodaysWorkoutSimple({ onPress }: TodaysWorkoutSimpleProp
         {todaysWorkout.workout_data.description}
       </Text>
 
-      <View style={styles.metrics}>
+      <View style={[styles.metrics, { backgroundColor: disciplineColor + '10' }]}>
         <View style={styles.metricItem}>
           <Text style={styles.metricValue}>{todaysWorkout.workout_data.intensity}</Text>
           <Text style={styles.metricLabel}>INTENSITY</Text>
@@ -83,7 +99,7 @@ export default function TodaysWorkoutSimple({ onPress }: TodaysWorkoutSimpleProp
         </View>
       </View>
 
-      <TouchableOpacity style={styles.startButton} onPress={onPress} activeOpacity={0.8}>
+      <TouchableOpacity style={[styles.startButton, { backgroundColor: disciplineColor }]} onPress={onPress} activeOpacity={0.8}>
         <Text style={styles.startButtonText}>View Workout Details</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.white} />
       </TouchableOpacity>
@@ -252,5 +268,29 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.sm - 1,
     color: colors.text.secondary,
     lineHeight: 18,
+  },
+  
+  restDayContainer: {
+    borderLeftWidth: 3,
+    borderLeftColor: colors.system.purple,
+    backgroundColor: colors.system.purple + '05',
+  },
+  
+  restDayContent: {
+    alignItems: 'center',
+    paddingVertical: spacing[4],
+  },
+  
+  restDayTitle: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.semibold,
+    color: colors.neutral.text,
+    marginTop: spacing[3],
+    marginBottom: spacing[1],
+  },
+  
+  restDaySubtitle: {
+    fontSize: typography.sizes.sm,
+    color: colors.neutral.secondary,
   },
 });

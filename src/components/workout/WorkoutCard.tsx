@@ -37,7 +37,10 @@ export default function WorkoutCard({
 
   return (
     <TouchableOpacity onPress={onPress} disabled={!onPress}>
-      <Card style={styles.container} padding="medium">
+      <Card style={[
+        styles.container,
+        { borderLeftWidth: 3, borderLeftColor: disciplineColor }
+      ]} padding="medium">
         {/* Header with discipline indicator and status */}
         <View style={styles.header}>
           <View style={styles.disciplineRow}>
@@ -58,11 +61,13 @@ export default function WorkoutCard({
             </View>
           </View>
           
-          <View style={[styles.statusBadge, { backgroundColor: statusColor }]}>
-            <CaptionText style={styles.statusText}>
-              {getStatusLabel(status)}
-            </CaptionText>
-          </View>
+          {status !== 'scheduled' && (
+            <View style={[styles.statusBadge, { backgroundColor: statusColor + '20', borderColor: statusColor }]}>
+              <CaptionText style={[styles.statusText, { color: statusColor }]}>
+                {getStatusLabel(status)}
+              </CaptionText>
+            </View>
+          )}
         </View>
 
         {/* Workout Details */}
@@ -250,10 +255,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[2],
     paddingVertical: spacing[1],
     borderRadius: borderRadius.sm,
+    borderWidth: 1,
   },
   
   statusText: {
-    color: colors.neutral.cards,
     fontWeight: typography.weights.medium,
     fontSize: typography.sizes.xs - 1,
   },

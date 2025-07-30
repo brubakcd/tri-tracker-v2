@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Text } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { CompositeNavigationProp } from '@react-navigation/native';
@@ -8,7 +8,7 @@ import TodaysWorkoutSimple from '../components/workout/TodaysWorkoutSimple';
 import DashboardHeaderSimple from '../components/dashboard/DashboardHeaderSimple';
 import WeekOverviewCombined from '../components/dashboard/WeekOverviewCombined';
 import { spacing, colors, typography } from '../styles/tokens';
-import { getTodaysWorkout, getUpcomingWorkouts, isWorkoutCompleted } from '../data';
+import { getTodaysWorkout, getUpcomingWorkouts, isWorkoutCompleted, getConsistencyData } from '../data';
 
 type DashboardStackParamList = {
   DashboardHome: undefined;
@@ -34,6 +34,22 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ navigation }: DashboardProps) {
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  // Scroll to top on tab press
+  useEffect(() => {
+    const parent = navigation.getParent();
+    if (!parent) return;
+
+    const unsubscribe = parent.addListener('tabPress', () => {
+      if (navigation.isFocused()) {
+        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   // Get today's workout
   const todaysWorkout = getTodaysWorkout('plan_1');
   
@@ -47,10 +63,14 @@ export default function Dashboard({ navigation }: DashboardProps) {
   
   // Calculate completed workouts for the week
   const completedCount = weekWorkouts.filter(w => isWorkoutCompleted(w.id)).length;
+  
+  // Get consistency data for streak
+  const consistencyData = getConsistencyData('user_1', 'plan_1');
 
   return (
     <View style={styles.container}>
       <ScrollView 
+        ref={scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -65,7 +85,8 @@ export default function Dashboard({ navigation }: DashboardProps) {
             phase: "Build Phase",
             program: "Olympic Distance Program",
             weeklyWorkouts: weekWorkouts,
-            completedCount: completedCount
+            completedCount: completedCount,
+            currentStreak: consistencyData.currentStreak
           }}
         />
         
@@ -117,7 +138,7 @@ const styles = StyleSheet.create({
   },
   
   content: {
-    paddingTop: spacing[2],
+    paddingTop: 0,
     paddingBottom: spacing[8],
   },
   

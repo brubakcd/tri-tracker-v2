@@ -13,12 +13,18 @@ interface DashboardHeaderSimpleProps {
     program: string;
     weeklyWorkouts: any[];
     completedCount: number;
+    currentStreak?: number;
   };
 }
 
-export default function DashboardHeaderSimple({ onMorePress, userName = 'Cole', trainingInfo }: DashboardHeaderSimpleProps) {
+export default function DashboardHeaderSimple({ onMorePress, userName, trainingInfo }: DashboardHeaderSimpleProps) {
+  const displayName = userName || 'Cole';
   const getDisciplineGradientColors = (discipline: string): string[] => {
-    switch (discipline) {
+    if (!discipline || typeof discipline !== 'string') {
+      return [colors.system.gray, colors.system.gray];
+    }
+    
+    switch (discipline.toLowerCase()) {
       case 'swim': return [colors.disciplines.swim, colors.disciplines.swim];
       case 'bike': return [colors.disciplines.bike, colors.disciplines.bike];
       case 'run': return [colors.disciplines.run, colors.disciplines.run];
@@ -28,9 +34,9 @@ export default function DashboardHeaderSimple({ onMorePress, userName = 'Cole', 
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return { text: 'Good morning', icon: 'sunny-outline' };
-    if (hour < 17) return { text: 'Good afternoon', icon: 'partly-sunny-outline' };
-    return { text: 'Good evening', icon: 'moon-outline' };
+    if (hour < 12) return { text: 'Good morning', icon: 'sunny-outline' as const };
+    if (hour < 17) return { text: 'Good afternoon', icon: 'partly-sunny-outline' as const };
+    return { text: 'Good evening', icon: 'moon-outline' as const };
   };
 
   const greeting = getGreeting();
@@ -40,11 +46,19 @@ export default function DashboardHeaderSimple({ onMorePress, userName = 'Cole', 
       <View style={styles.mainCard}>
         <View style={styles.welcomeSection}>
           <View style={styles.greetingRow}>
-            <Ionicons name={greeting.icon as any} size={20} color={colors.primary} style={styles.welcomeIcon} />
+            <View style={styles.welcomeIcon}>
+              <Ionicons name={greeting.icon as any} size={20} color={colors.primary} />
+            </View>
             <View style={styles.welcomeTextContainer}>
-              <Text style={styles.greetingText}>{greeting.text}, {userName}.</Text>
+              <Text style={styles.greetingText}>{`${greeting.text}, ${displayName}.`}</Text>
               <Text style={styles.subtitle}>Let's crush today's training</Text>
             </View>
+            {trainingInfo?.currentStreak && trainingInfo.currentStreak > 2 ? (
+              <View style={styles.streakBadge}>
+                <Ionicons name="flame" size={16} color={colors.system.orange} />
+                <Text style={styles.streakText}>{trainingInfo.currentStreak}</Text>
+              </View>
+            ) : null}
           </View>
         </View>
 
@@ -68,12 +82,12 @@ export default function DashboardHeaderSimple({ onMorePress, userName = 'Cole', 
         <View style={styles.progressSection}>
           <View style={styles.progressHeader}>
             <Text style={styles.progressTitle}>Workouts Completed This Week</Text>
-            <Text style={styles.progressCount}>{trainingInfo?.completedCount || 0}/{trainingInfo?.weeklyWorkouts?.length || 0}</Text>
+            <Text style={styles.progressCount}>{`${trainingInfo?.completedCount || 0}/${trainingInfo?.weeklyWorkouts?.length || 0}`}</Text>
           </View>
           <View style={styles.progressBars}>
             {(trainingInfo?.weeklyWorkouts || []).map((workout: any, index: number) => {
               const isCompleted = index < (trainingInfo?.completedCount || 0);
-              const gradientColors = getDisciplineGradientColors(workout.discipline);
+              const gradientColors = getDisciplineGradientColors(workout?.discipline || 'default');
               return (
                 <View
                   key={index}
@@ -95,7 +109,7 @@ export default function DashboardHeaderSimple({ onMorePress, userName = 'Cole', 
       <View style={styles.aiInsight}>
         <View style={styles.aiHeader}>
           <View style={styles.aiTitleRow}>
-            <Ionicons name="analytics-outline" size={16} color={colors.white + 'BF'} />
+            <Ionicons name="analytics-outline" size={16} color={`${colors.white}BF`} />
             <Text style={styles.aiTitle}>TRAINING INSIGHT</Text>
           </View>
           <TouchableOpacity style={styles.moreButton} onPress={onMorePress}>
@@ -199,14 +213,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.system.blue + '20',
+    backgroundColor: `${colors.system.blue}20`,
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[2],
     borderRadius: borderRadius.full,
     marginBottom: spacing[4],
     marginHorizontal: spacing[5],
     borderWidth: 1,
-    borderColor: colors.system.blue + '50',
+    borderColor: `${colors.system.blue}50`,
   },
 
   programBadgeText: {
@@ -271,7 +285,7 @@ const styles = StyleSheet.create({
   
   aiTitle: {
     fontSize: typography.sizes.xs - 2,
-    color: colors.white + 'BF',
+    color: `${colors.white}BF`,
     fontWeight: typography.weights.medium,
     letterSpacing: 0.5,
     marginLeft: spacing[1] + spacing[1]/2,
@@ -294,5 +308,21 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.sm,
     color: colors.white,
     lineHeight: 20,
+  },
+  
+  streakBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: `${colors.system.orange}20`,
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[1],
+    borderRadius: 12,
+    gap: spacing[1],
+  },
+  
+  streakText: {
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.semibold,
+    color: colors.system.orange,
   },
 });

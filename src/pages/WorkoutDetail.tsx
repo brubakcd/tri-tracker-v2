@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import { BodyText } from '../components/ui/Typography';
 import { WorkoutStructureCard, WorkoutDetailHeader } from '../components/workout';
-import { colors, spacing } from '../styles/tokens';
+import { colors, spacing, typography } from '../styles/tokens';
 import { getWorkoutById } from '../data/mockWorkouts';
 
 type PlanStackParamList = {
@@ -98,6 +99,7 @@ export default function WorkoutDetail({ navigation, route }: WorkoutDetailProps)
           phases={`${workout.workout_data.structure.length} phases`}
           status={isCompleted ? 'completed' : (isScheduled ? 'scheduled' : 'upcoming')}
           workoutOverview="This endurance-focused session builds aerobic capacity through varied intensity zones. Maintain steady effort and focus on proper form throughout each phase to maximize training adaptations."
+          discipline={workout.discipline}
         />
 
         {/* Workout Structure */}

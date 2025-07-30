@@ -1,14 +1,30 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import WeekPlan from '../components/plan/WeekPlan';
 import RaceDate from '../components/plan/RaceDate';
 import { spacing, colors } from '../styles/tokens';
 
 export default function PlanPage() {
+  const navigation = useNavigation();
   const currentWeek = 8; // This would come from your data/state
   const totalWeeks = 12;
   const scrollViewRef = useRef<ScrollView>(null);
   const weekPositions = useRef<{ [key: number]: number }>({});
+
+  // Scroll to top on tab press
+  useEffect(() => {
+    const parent = navigation.getParent();
+    if (!parent) return;
+
+    const unsubscribe = parent.addListener('tabPress', () => {
+      if (navigation.isFocused()) {
+        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation]);
   
   // Helper functions
   const getWeekPhase = (week: number) => {
@@ -96,6 +112,7 @@ export default function PlanPage() {
     return () => clearTimeout(timer);
   }, [currentWeek]);
 
+
   // Handle week layout to track positions
   const handleWeekLayout = (weekNumber: number, y: number) => {
     weekPositions.current[weekNumber] = y;
@@ -163,7 +180,7 @@ const styles = StyleSheet.create({
   },
   
   content: {
-    paddingTop: spacing[2],
+    paddingTop: spacing[4],
     paddingBottom: spacing[8],
   },
 });
