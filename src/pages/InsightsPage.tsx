@@ -2,11 +2,12 @@ import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import { BodyText, BodyTextLarge, CaptionText } from '../components/ui/Typography';
-import Card from '../components/ui/Card';
+import { Text } from 'react-native';
 import WeekStats from '../components/dashboard/WeekStats';
 import CoachInsights from '../components/dashboard/CoachInsights';
 import { TrendChart, PersonalRecords, ConsistencyStreak } from '../components/insights';
+import { BodyText, BodyTextLarge, CaptionText } from '../components/ui/Typography';
+import Card from '../components/ui/Card';
 import { colors, spacing, typography } from '../styles/tokens';
 import { 
   getWeeklyProgress, 
@@ -84,31 +85,33 @@ export default function InsightsPage({ navigation }: InsightsProps) {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           {/* Race Countdown */}
-          <Card style={styles.countdownCard}>
-            <View style={styles.countdownHeader}>
-              <Ionicons name="trophy" size={20} color={colors.system.yellow} />
-              <BodyTextLarge style={styles.raceName}>{race?.name || 'Olympic Triathlon'}</BodyTextLarge>
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <View style={styles.raceHeader}>
+                <Ionicons name="trophy" size={16} color={colors.system.yellow} />
+                <Text style={styles.cardTitle}>{race?.name || 'Olympic Triathlon'}</Text>
+              </View>
             </View>
-            <View style={styles.countdownContent}>
+            <View style={styles.countdownGrid}>
               <View style={styles.countdownItem}>
-                <BodyTextLarge style={styles.countdownNumber}>{daysUntilRace}</BodyTextLarge>
-                <CaptionText style={styles.countdownLabel}>DAYS</CaptionText>
+                <Text style={styles.countdownNumber}>{daysUntilRace}</Text>
+                <Text style={styles.countdownLabel}>DAYS</Text>
               </View>
               <View style={styles.countdownDivider} />
               <View style={styles.countdownItem}>
-                <BodyTextLarge style={styles.countdownNumber}>{weeksUntilRace}</BodyTextLarge>
-                <CaptionText style={styles.countdownLabel}>WEEKS</CaptionText>
+                <Text style={styles.countdownNumber}>{weeksUntilRace}</Text>
+                <Text style={styles.countdownLabel}>WEEKS</Text>
               </View>
             </View>
-            <CaptionText style={styles.raceDate}>
+            <Text style={styles.raceDate}>
               {raceDate.toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric' 
               })}
-            </CaptionText>
-          </Card>
+            </Text>
+          </View>
 
           {/* Consistency Streak */}
           <ConsistencyStreak 
@@ -119,41 +122,37 @@ export default function InsightsPage({ navigation }: InsightsProps) {
 
           {/* Weekly Stats */}
           <View style={styles.section}>
-            <BodyTextLarge style={styles.sectionTitle}>This Week's Progress</BodyTextLarge>
-            <View style={styles.paddedSection}>
-              <WeekStats 
-                completed={weeklyProgress.workoutsCompleted}
-                totalMinutes={weeklyProgress.totalMinutes}
-                remaining={weeklyProgress.workoutsRemaining}
-                lastWeekCompleted={3}
-                lastWeekMinutes={180}
-              />
-            </View>
+            <Text style={styles.sectionTitle}>This Week's Progress</Text>
+            <WeekStats 
+              completed={weeklyProgress.workoutsCompleted}
+              totalMinutes={weeklyProgress.totalMinutes}
+              remaining={weeklyProgress.workoutsRemaining}
+              lastWeekCompleted={3}
+              lastWeekMinutes={180}
+            />
           </View>
 
           {/* Training Trends */}
           <View style={styles.section}>
-            <BodyTextLarge style={styles.sectionTitle}>Training Trends</BodyTextLarge>
-            <View style={styles.paddedSection}>
-              <TrendChart 
-                title="Weekly Volume"
-                data={volumeTrends.data}
-                trend={volumeTrends.trend as 'up' | 'down' | 'stable'}
-                changeText={volumeTrends.changeText}
-              />
-              <TrendChart 
-                title="Heart Rate Zones"
-                data={heartRateData.data}
-                trend={heartRateData.trend as 'up' | 'down' | 'stable'}
-                changeText={heartRateData.changeText}
-              />
-              <TrendChart 
-                title="Training Load"
-                data={trainingLoad.data.slice(-4)}
-                trend={trainingLoad.trend as 'up' | 'down' | 'stable'}
-                changeText={trainingLoad.changeText}
-              />
-            </View>
+            <Text style={styles.sectionTitle}>Training Trends</Text>
+            <TrendChart 
+              title="Weekly Volume"
+              data={volumeTrends.data}
+              trend={volumeTrends.trend as 'up' | 'down' | 'stable'}
+              changeText={volumeTrends.changeText}
+            />
+            <TrendChart 
+              title="Heart Rate Zones"
+              data={heartRateData.data}
+              trend={heartRateData.trend as 'up' | 'down' | 'stable'}
+              changeText={heartRateData.changeText}
+            />
+            <TrendChart 
+              title="Training Load"
+              data={trainingLoad.data.slice(-4)}
+              trend={trainingLoad.trend as 'up' | 'down' | 'stable'}
+              changeText={trainingLoad.changeText}
+            />
           </View>
 
           {/* Personal Records */}
@@ -335,31 +334,44 @@ const styles = StyleSheet.create({
     paddingBottom: spacing[8],
   },
 
-  paddedSection: {
-    paddingHorizontal: spacing[4],
+  // Consistent Card Styling (matches WorkoutDetailHeader)
+  card: {
+    backgroundColor: colors.neutral.cards,
+    borderRadius: 16,
+    padding: 20,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.1,
+    shadowRadius: 25,
+    elevation: 5,
   },
 
-  countdownCard: {
-    marginHorizontal: spacing[4],
+  cardHeader: {
     marginBottom: spacing[4],
-    padding: spacing[4],
+    paddingBottom: spacing[4],
+    borderBottomWidth: 1,
+    borderBottomColor: colors.neutral.separator,
   },
 
-  countdownHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[2],
-    marginBottom: spacing[3],
-  },
-
-  raceName: {
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.semibold,
+  cardTitle: {
+    fontSize: 17,
+    fontWeight: '600',
     color: colors.neutral.text,
   },
 
-  countdownContent: {
+  raceHeader: {
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
+  },
+
+  countdownGrid: {
+    flexDirection: 'row',
+    backgroundColor: '#F2F2F7',
+    borderRadius: 8,
+    paddingVertical: 16,
     justifyContent: 'center',
     alignItems: 'center',
     gap: spacing[6],
@@ -371,41 +383,39 @@ const styles = StyleSheet.create({
   },
 
   countdownNumber: {
-    fontSize: typography.sizes['3xl'] + 2,
-    fontWeight: typography.weights.bold,
+    fontSize: 24,
+    fontWeight: '600',
     color: colors.neutral.text,
-    lineHeight: 32,
+    marginBottom: 4,
   },
 
   countdownLabel: {
-    fontSize: typography.sizes.xs,
-    fontWeight: typography.weights.medium,
+    fontSize: 10,
+    fontWeight: '500',
     color: colors.neutral.secondary,
     letterSpacing: 0.5,
-    marginTop: spacing[1],
     textTransform: 'uppercase',
   },
 
   countdownDivider: {
     width: 1,
-    height: 40,
-    backgroundColor: colors.neutral.secondary,
-    opacity: 0.3,
+    height: 32,
+    backgroundColor: '#D1D1D6',
   },
 
   raceDate: {
+    fontSize: 14,
     color: colors.neutral.secondary,
     textAlign: 'center',
-    marginTop: spacing[2],
   },
 
   section: {
-    marginBottom: spacing[4],
+    marginBottom: spacing[6],
   },
 
   sectionTitle: {
-    fontSize: typography.sizes.xl,
-    fontWeight: typography.weights.bold,
+    fontSize: 17,
+    fontWeight: '600',
     color: colors.neutral.text,
     marginBottom: spacing[4],
     paddingHorizontal: spacing[4],

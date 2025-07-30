@@ -1,4 +1,5 @@
-import { getCompletedWorkoutsByUserId, getWorkoutsByPlanId } from './index';
+import { getCompletedWorkoutsByUserId } from './mockCompletedWorkouts';
+import { getWorkoutsByPlanId } from './mockWorkouts';
 
 // Calculate weekly training volume trends
 export const getWeeklyVolumeTrends = (userId, weeks = 4) => {

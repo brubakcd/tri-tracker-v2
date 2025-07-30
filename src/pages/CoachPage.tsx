@@ -1,198 +1,208 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView, Text, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import CoachInsights from '../components/dashboard/CoachInsights';
-import { spacing, colors, typography, borderRadius, shadows } from '../styles/tokens';
+import { BodyText, BodyTextLarge, CaptionText } from '../components/ui/Typography';
+import Card from '../components/ui/Card';
+import { spacing, colors, typography } from '../styles/tokens';
+import { getAIInteractionsByUserId, getLatestInsight, getDailyMotivation } from '../data';
 
 interface CoachPageProps {
   navigation: any;
 }
 
+interface Message {
+  id: string;
+  text: string;
+  isUser: boolean;
+  timestamp: Date;
+}
+
 export default function CoachPage({ navigation }: CoachPageProps) {
-  // Mock data for AI insights
-  const insights = [
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      message: "Your running pace has improved 8% this month! Consider increasing your tempo run intensity for even better results.",
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    },
-    {
-      id: '2', 
-      message: "Recovery metrics show optimal adaptation. Your heart rate variability has increased 12% - great sign of improved fitness.",
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-    },
-    {
-      id: '3',
-      message: "Swimming technique analysis suggests focusing on catch phase. Your stroke rate is consistent but could be more efficient.",
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+      text: "Hi! I'm your AI triathlon coach. I'm here to help you optimize your training, answer questions, and keep you motivated on your journey to race day. How can I help you today?",
+      isUser: false,
+      timestamp: new Date(),
     }
+  ]);
+  const [inputText, setInputText] = useState('');
+
+  // Get AI insights
+  const latestInsight = getLatestInsight('user_1');
+  const dailyMotivation = getDailyMotivation('user_1');
+
+  // Quick action prompts
+  const quickActions = [
+    { icon: 'fitness', text: 'Analyze my progress', color: colors.system.blue },
+    { icon: 'nutrition', text: 'Nutrition advice', color: colors.system.green },
+    { icon: 'bed', text: 'Recovery tips', color: colors.system.purple },
+    { icon: 'calendar', text: 'Adjust schedule', color: colors.system.orange },
   ];
 
-  // Mock performance trends
-  const trends = {
-    swim: { change: '4s faster', direction: 'positive' },
-    bike: { change: '2.3 mph faster', direction: 'positive' },
-    run: { change: '15s/mile faster', direction: 'positive' }
-  };
-
-  // Mock goals progress
-  const goals = [
-    { discipline: 'swim', name: 'Swim 1500m', progress: 75, target: '28:00' },
-    { discipline: 'bike', name: 'Bike 40km', progress: 85, target: '1:05:00' },
-    { discipline: 'run', name: 'Run 10km', progress: 90, target: '42:00' }
-  ];
-
-  const getDisciplineColor = (discipline: string) => {
-    switch (discipline) {
-      case 'swim': return colors.disciplines.swim;
-      case 'bike': return colors.disciplines.bike;
-      case 'run': return colors.disciplines.run;
-      default: return colors.system.gray;
+  const handleSend = () => {
+    if (inputText.trim()) {
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        text: inputText,
+        isUser: true,
+        timestamp: new Date(),
+      };
+      
+      setMessages([...messages, userMessage]);
+      setInputText('');
+      
+      // Simulate AI response
+      setTimeout(() => {
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          text: "I'm analyzing your request. Based on your recent training data, here's my recommendation...",
+          isUser: false,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, aiResponse]);
+      }, 1000);
     }
   };
 
-  const formatRelativeTime = (timestamp: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - timestamp.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    
-    if (hours < 1) return 'Just now';
-    if (hours < 24) return `${hours} hours ago`;
-    const days = Math.floor(hours / 24);
-    if (days === 1) return 'Yesterday';
-    return `${days} days ago`;
+  const handleQuickAction = (action: string) => {
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      text: action,
+      isUser: true,
+      timestamp: new Date(),
+    };
+    setMessages([...messages, userMessage]);
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+    >
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <View style={styles.titleRow}>
+            <Text style={styles.headerTitle}>AI Coach</Text>
+            <View style={styles.statusIndicator}>
+              <View style={styles.statusDot} />
+              <CaptionText style={styles.statusText}>Online</CaptionText>
+            </View>
+          </View>
+          <CaptionText style={styles.headerSubtitle}>Your personal triathlon assistant</CaptionText>
+        </View>
+      </View>
+
       <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        style={styles.messagesContainer}
+        contentContainerStyle={styles.messagesContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>AI Coach</Text>
-        </View>
-
-        {/* Recent Insights Section */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Insights</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Insights')}>
-              <Text style={styles.sectionAction}>View all</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.insightsContainer}>
-            {insights.map((insight) => (
-              <View key={insight.id} style={styles.insightCard}>
-                <View style={styles.insightHeader}>
-                  <Text style={styles.insightTime}>{formatRelativeTime(insight.timestamp)}</Text>
-                </View>
-                <CoachInsights message={insight.message} />
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Performance Trends Section */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Performance Trends</Text>
-            <TouchableOpacity onPress={() => console.log('View trends')}>
-              <Text style={styles.sectionAction}>Details</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.trendsCard}>
-            <Text style={styles.cardTitle}>Last 4 Weeks</Text>
-            <Text style={styles.cardSubtitle}>Key performance indicators</Text>
-            
-            {Object.entries(trends).map(([discipline, trend]) => (
-              <View key={discipline} style={styles.trendItem}>
-                <View style={styles.trendLeft}>
-                  <View style={[styles.disciplineDot, { backgroundColor: getDisciplineColor(discipline) }]} />
-                  <Text style={styles.trendText}>{discipline.charAt(0).toUpperCase() + discipline.slice(1)} Pace</Text>
-                </View>
-                <View style={styles.trendRight}>
-                  <Ionicons 
-                    name="arrow-up" 
-                    size={12} 
-                    color={colors.status.completed} 
-                    style={styles.trendArrow} 
-                  />
-                  <Text style={styles.trendValue}>{trend.change}</Text>
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Goal Progress Section */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Goal Progress</Text>
-            <TouchableOpacity onPress={() => console.log('Edit goals')}>
-              <Text style={styles.sectionAction}>Edit goals</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.goalsCard}>
-            <Text style={styles.cardTitle}>Olympic Distance Targets</Text>
-            <Text style={styles.cardSubtitle}>Race preparation milestones</Text>
-            
-            {goals.map((goal, index) => (
-              <View key={index} style={styles.goalItem}>
-                <View style={styles.goalHeader}>
-                  <Text style={styles.goalName}>{goal.name}</Text>
-                  <Text style={styles.goalTarget}>{goal.target}</Text>
-                </View>
-                <View style={styles.progressBar}>
-                  <View 
-                    style={[
-                      styles.progressFill, 
-                      { 
-                        width: `${goal.progress}%`,
-                        backgroundColor: getDisciplineColor(goal.discipline)
-                      }
-                    ]} 
-                  />
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Recommendations Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>This Week's Focus</Text>
-          
-          <View style={styles.recommendationsCard}>
-            <View style={styles.recommendationItem}>
-              <View style={[styles.categoryDot, { backgroundColor: colors.primary }]} />
-              <View style={styles.recommendationContent}>
-                <Text style={styles.recommendationTitle}>Increase Training Volume</Text>
-                <Text style={styles.recommendationDescription}>
-                  Add 15 minutes to your long run this weekend. Your base fitness can handle the increase.
-                </Text>
-              </View>
+        {/* Daily Motivation Card */}
+        {dailyMotivation && messages.length === 1 && (
+          <Card style={styles.motivationCard}>
+            <View style={styles.motivationHeader}>
+              <Ionicons name="sparkles" size={20} color={colors.system.yellow} />
+              <BodyText style={styles.motivationTitle}>Daily Motivation</BodyText>
             </View>
-            
-            <View style={styles.recommendationItem}>
-              <View style={[styles.categoryDot, { backgroundColor: colors.system.orange }]} />
-              <View style={styles.recommendationContent}>
-                <Text style={styles.recommendationTitle}>Focus on Technique</Text>
-                <Text style={styles.recommendationDescription}>
-                  Practice bilateral breathing during easy swim sessions to improve stroke efficiency.
-                </Text>
+            <CaptionText style={styles.motivationText}>{dailyMotivation.content}</CaptionText>
+          </Card>
+        )}
+
+        {/* Latest Insight Card */}
+        {latestInsight && messages.length === 1 && (
+          <Card style={styles.insightCard}>
+            <View style={styles.insightHeader}>
+              <Ionicons name="bulb-outline" size={20} color={colors.system.blue} />
+              <BodyText style={styles.insightTitle}>Latest Insight</BodyText>
+            </View>
+            <CaptionText style={styles.insightText}>{latestInsight.content}</CaptionText>
+          </Card>
+        )}
+
+        {/* Messages */}
+        {messages.map((message, index) => (
+          <View
+            key={message.id}
+            style={[
+              styles.messageWrapper,
+              message.isUser ? styles.userMessageWrapper : styles.aiMessageWrapper
+            ]}
+          >
+            {!message.isUser && (
+              <View style={styles.aiAvatar}>
+                <Ionicons name="sparkles" size={16} color={colors.primary} />
               </View>
+            )}
+            <View
+              style={[
+                styles.messageBubble,
+                message.isUser ? styles.userMessage : styles.aiMessage
+              ]}
+            >
+              <Text style={[
+                styles.messageText,
+                message.isUser ? styles.userMessageText : styles.aiMessageText
+              ]}>
+                {message.text}
+              </Text>
             </View>
           </View>
-        </View>
+        ))}
+
+        {/* Quick Actions - shown only after initial message */}
+        {messages.length === 1 && (
+          <View style={styles.quickActionsContainer}>
+            <CaptionText style={styles.quickActionsTitle}>Quick Actions</CaptionText>
+            <View style={styles.quickActionsGrid}>
+              {quickActions.map((action, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.quickActionButton}
+                  onPress={() => handleQuickAction(action.text)}
+                >
+                  <View style={[styles.quickActionIcon, { backgroundColor: action.color + '20' }]}>
+                    <Ionicons name={action.icon as any} size={20} color={action.color} />
+                  </View>
+                  <CaptionText style={styles.quickActionText}>{action.text}</CaptionText>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
       </ScrollView>
-    </SafeAreaView>
+
+      {/* Input Area */}
+      <View style={styles.inputContainer}>
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Ask me anything about your training..."
+            placeholderTextColor={colors.neutral.secondary}
+            value={inputText}
+            onChangeText={setInputText}
+            multiline
+            maxHeight={100}
+          />
+          <TouchableOpacity 
+            style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+            onPress={handleSend}
+            disabled={!inputText.trim()}
+          >
+            <Ionicons 
+              name="send" 
+              size={20} 
+              color={inputText.trim() ? colors.neutral.white : colors.neutral.secondary} 
+            />
+          </TouchableOpacity>
+        </View>
+        <CaptionText style={styles.disclaimer}>
+          AI suggestions are for guidance only. Always consult with professionals for medical advice.
+        </CaptionText>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -202,217 +212,254 @@ const styles = StyleSheet.create({
     backgroundColor: colors.neutral.background,
   },
 
-  scrollView: {
-    flex: 1,
-  },
-
-  scrollContent: {
-    paddingBottom: spacing[8],
-  },
-
   header: {
-    paddingHorizontal: spacing[4],
-    paddingTop: spacing[5],
-    paddingBottom: spacing[5],
-  },
-
-  headerTitle: {
-    fontSize: typography.sizes['3xl'] - 2,
-    fontWeight: typography.weights.bold,
-    color: colors.neutral.text,
-    letterSpacing: -0.3,
-  },
-
-  section: {
-    marginBottom: spacing[6],
-    paddingHorizontal: spacing[4],
-  },
-
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing[4],
-  },
-
-  sectionTitle: {
-    fontSize: typography.sizes.xl,
-    fontWeight: typography.weights.bold,
-    color: colors.neutral.text,
-  },
-
-  sectionAction: {
-    fontSize: typography.sizes.sm,
-    color: colors.primary,
-    fontWeight: typography.weights.medium,
-  },
-
-  insightsContainer: {
-    gap: spacing[4],
-  },
-
-  insightCard: {
     backgroundColor: colors.neutral.cards,
-    borderRadius: borderRadius.lg,
-    padding: spacing[4],
-    ...shadows.base,
-  },
-
-  insightHeader: {
-    marginBottom: spacing[3],
-  },
-
-  insightTime: {
-    fontSize: typography.sizes.xs,
-    color: colors.system.gray,
-    textAlign: 'right',
-  },
-
-  trendsCard: {
-    backgroundColor: colors.neutral.cards,
-    borderRadius: borderRadius.lg,
-    padding: spacing[5],
-    ...shadows.base,
-  },
-
-  cardTitle: {
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.semibold,
-    color: colors.neutral.text,
-    marginBottom: spacing[1],
-  },
-
-  cardSubtitle: {
-    fontSize: typography.sizes.sm,
-    color: colors.neutral.secondary,
-    marginBottom: spacing[4],
-  },
-
-  trendItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: spacing[3],
     paddingHorizontal: spacing[4],
-    backgroundColor: colors.system.gray6,
-    borderRadius: borderRadius.base,
-    marginBottom: spacing[2],
+    paddingTop: spacing[4],
+    paddingBottom: spacing[3],
+    borderBottomWidth: 1,
+    borderBottomColor: colors.neutral.separator,
   },
 
-  trendLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[3],
-  },
-
-  disciplineDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-  },
-
-  trendText: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.medium,
-    color: colors.neutral.text,
-  },
-
-  trendRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  headerContent: {
     gap: spacing[1],
   },
 
-  trendArrow: {
-    marginRight: spacing[1] / 2,
-  },
-
-  trendValue: {
-    fontSize: typography.sizes.sm - 1,
-    fontWeight: typography.weights.medium,
-    color: colors.status.completed,
-  },
-
-  goalsCard: {
-    backgroundColor: colors.neutral.cards,
-    borderRadius: borderRadius.lg,
-    padding: spacing[5],
-    ...shadows.base,
-  },
-
-  goalItem: {
-    marginBottom: spacing[4],
-  },
-
-  goalHeader: {
+  titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing[2],
   },
 
-  goalName: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.medium,
+  headerTitle: {
+    fontSize: typography.sizes['2xl'],
+    fontWeight: typography.weights.bold,
     color: colors.neutral.text,
   },
 
-  goalTarget: {
-    fontSize: typography.sizes.xs,
+  headerSubtitle: {
     color: colors.neutral.secondary,
   },
 
-  progressBar: {
-    height: 6,
-    backgroundColor: colors.system.gray6,
-    borderRadius: borderRadius.sm - 1,
-    overflow: 'hidden',
-  },
-
-  progressFill: {
-    height: '100%',
-    borderRadius: borderRadius.sm - 1,
-  },
-
-  recommendationsCard: {
-    backgroundColor: colors.neutral.cards,
-    borderRadius: borderRadius.lg,
-    padding: spacing[5],
-    ...shadows.base,
-  },
-
-  recommendationItem: {
+  statusIndicator: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing[3],
-    paddingVertical: spacing[4],
-    paddingHorizontal: spacing[4],
-    backgroundColor: colors.system.gray6,
-    borderRadius: borderRadius.base + 2,
-    marginBottom: spacing[3],
+    alignItems: 'center',
+    gap: spacing[1],
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[1],
+    backgroundColor: colors.system.green + '20',
+    borderRadius: 12,
   },
 
-  categoryDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginTop: spacing[1] + spacing[1]/2,
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.system.green,
   },
 
-  recommendationContent: {
+  statusText: {
+    color: colors.system.green,
+    fontSize: 11,
+    fontWeight: '600',
+  },
+
+  messagesContainer: {
     flex: 1,
   },
 
-  recommendationTitle: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.medium,
-    color: colors.neutral.text,
-    marginBottom: spacing[1],
+  messagesContent: {
+    padding: spacing[4],
+    paddingBottom: spacing[8],
   },
 
-  recommendationDescription: {
-    fontSize: typography.sizes.sm - 1,
-    color: colors.text.secondary,
+  motivationCard: {
+    marginBottom: spacing[4],
+    backgroundColor: colors.system.yellow + '10',
+    borderWidth: 1,
+    borderColor: colors.system.yellow + '30',
+  },
+
+  motivationHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
+    marginBottom: spacing[2],
+  },
+
+  motivationTitle: {
+    fontWeight: typography.weights.semibold,
+    color: colors.neutral.text,
+  },
+
+  motivationText: {
     lineHeight: 18,
+  },
+
+  insightCard: {
+    marginBottom: spacing[4],
+    backgroundColor: colors.system.blue + '10',
+    borderWidth: 1,
+    borderColor: colors.system.blue + '30',
+  },
+
+  insightHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
+    marginBottom: spacing[2],
+  },
+
+  insightTitle: {
+    fontWeight: typography.weights.semibold,
+    color: colors.neutral.text,
+  },
+
+  insightText: {
+    lineHeight: 18,
+  },
+
+  messageWrapper: {
+    marginBottom: spacing[3],
+  },
+
+  userMessageWrapper: {
+    alignItems: 'flex-end',
+  },
+
+  aiMessageWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: spacing[2],
+  },
+
+  aiAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.primary + '20',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  messageBubble: {
+    maxWidth: '80%',
+    padding: spacing[3],
+    borderRadius: 16,
+  },
+
+  userMessage: {
+    backgroundColor: colors.primary,
+    borderBottomRightRadius: 4,
+  },
+
+  aiMessage: {
+    backgroundColor: colors.neutral.cards,
+    borderBottomLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.neutral.separator,
+  },
+
+  messageText: {
+    fontSize: typography.sizes.sm,
+    lineHeight: 20,
+  },
+
+  userMessageText: {
+    color: colors.neutral.white,
+  },
+
+  aiMessageText: {
+    color: colors.neutral.text,
+  },
+
+  quickActionsContainer: {
+    marginTop: spacing[6],
+  },
+
+  quickActionsTitle: {
+    marginBottom: spacing[3],
+    textAlign: 'center',
+  },
+
+  quickActionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing[3],
+  },
+
+  quickActionButton: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: colors.neutral.cards,
+    borderRadius: 12,
+    padding: spacing[3],
+    alignItems: 'center',
+    gap: spacing[2],
+    borderWidth: 1,
+    borderColor: colors.neutral.separator,
+  },
+
+  quickActionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  quickActionText: {
+    fontSize: 12,
+    textAlign: 'center',
+  },
+
+  inputContainer: {
+    backgroundColor: colors.neutral.cards,
+    paddingHorizontal: spacing[4],
+    paddingTop: spacing[3],
+    paddingBottom: spacing[2],
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral.separator,
+  },
+
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: spacing[2],
+    marginBottom: spacing[2],
+  },
+
+  textInput: {
+    flex: 1,
+    backgroundColor: colors.neutral.background,
+    borderRadius: 20,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[2],
+    paddingTop: spacing[2] + 2,
+    fontSize: typography.sizes.sm,
+    color: colors.neutral.text,
+    maxHeight: 100,
+    borderWidth: 1,
+    borderColor: colors.neutral.separator,
+  },
+
+  sendButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  sendButtonDisabled: {
+    backgroundColor: colors.neutral.separator,
+  },
+
+  disclaimer: {
+    fontSize: 11,
+    textAlign: 'center',
+    color: colors.neutral.secondary,
+    marginBottom: spacing[1],
   },
 });
