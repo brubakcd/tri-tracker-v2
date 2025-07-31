@@ -64,7 +64,7 @@ export default function WeekWorkoutIcons({
             ]}>
               <Ionicons 
                 name={getDisciplineIcon(workout.discipline)} 
-                size={16} 
+                size={14} 
                 color={
                   isToday 
                     ? colors.white 
@@ -90,13 +90,16 @@ export default function WeekWorkoutIcons({
 const styles = StyleSheet.create({
   weekGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: spacing[1],
   },
 
   dayContainer: {
     alignItems: 'center',
     flex: 1,
+    maxWidth: 50,
+    minWidth: 36,
   },
 
   dayName: {
@@ -108,8 +111,8 @@ const styles = StyleSheet.create({
   },
 
   dayIcon: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     borderRadius: borderRadius.md,
     backgroundColor: colors.system.gray6,
     alignItems: 'center',

@@ -62,10 +62,6 @@ export default function DashboardHeaderSimple({ onMorePress, userName, trainingI
           </View>
         </View>
 
-        <View style={styles.programBadge}>
-          <Ionicons name="medal-outline" size={14} color={colors.system.blue} />
-          <Text style={styles.programBadgeText}>{trainingInfo?.program || 'Olympic Distance Program'}</Text>
-        </View>
 
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
@@ -209,26 +205,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.neutral.border,
   },
 
-  programBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: `${colors.system.blue}20`,
-    paddingHorizontal: spacing[3],
-    paddingVertical: spacing[2],
-    borderRadius: borderRadius.full,
-    marginBottom: spacing[4],
-    marginHorizontal: spacing[5],
-    borderWidth: 1,
-    borderColor: `${colors.system.blue}50`,
-  },
-
-  programBadgeText: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.medium,
-    color: colors.system.blue,
-    marginLeft: spacing[1] + spacing[1]/2,
-  },
 
   progressSection: {
     marginTop: spacing[4],
@@ -269,6 +245,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.neutral.text,
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[4],
+    borderRadius: borderRadius.md,
+    marginHorizontal: spacing[1],
+    marginTop: spacing[1],
   },
   
   aiHeader: {

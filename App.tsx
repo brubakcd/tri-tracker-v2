@@ -7,7 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Dashboard, PlanPage, WeeklyView, WeekDetailPage, WorkoutDetail, CoachPage, ProfilePage, InsightsPage } from './src/pages';
+import { Dashboard, PlanPage, PlanOverviewPage, ManagePlanPage, WeeklyView, WeekDetailPage, WorkoutDetail, CoachPage, ProfilePage, PersonalInformationPage, InsightsPage } from './src/pages';
 import AllInsightsPage from './src/pages/AllInsightsPage';
 import { ProfileIcon, NotificationsIcon } from './src/components/ui';
 import AuthWrapper from './src/components/auth/AuthWrapper';
@@ -31,6 +31,7 @@ type AuthStackParamList = {
 
 type PlanStackParamList = {
   PlanOverview: undefined;
+  PlanDetailOverview: undefined;
   WeeklyView: undefined;
   WeekDetail: {
     weekNumber: number;
@@ -42,7 +43,9 @@ type PlanStackParamList = {
     workoutId: string;
     status?: 'upcoming' | 'scheduled' | 'completed';
   };
+  ManagePlan: undefined;
   Profile: undefined;
+  PersonalInformation: undefined;
 };
 
 type DashboardStackParamList = {
@@ -52,6 +55,7 @@ type DashboardStackParamList = {
     status?: 'upcoming' | 'scheduled' | 'completed';
   };
   Profile: undefined;
+  PersonalInformation: undefined;
 };
 
 type TabParamList = {
@@ -64,11 +68,13 @@ type TabParamList = {
 type CoachStackParamList = {
   CoachHome: undefined;
   Profile: undefined;
+  PersonalInformation: undefined;
 };
 
 type InsightsStackParamList = {
   InsightsHome: undefined;
   Profile: undefined;
+  PersonalInformation: undefined;
 };
 
 const RootStack = createStackNavigator<RootStackParamList>();
@@ -174,6 +180,11 @@ function PlanStackNavigator() {
         options={{ title: 'Training Plan' }}
       />
       <PlanStack.Screen 
+        name="PlanDetailOverview" 
+        component={PlanOverviewPage} 
+        options={{ headerShown: false }}
+      />
+      <PlanStack.Screen 
         name="WeeklyView" 
         component={WeeklyView} 
         options={{ title: 'Weekly View' }}
@@ -215,11 +226,21 @@ function PlanStackNavigator() {
         })}
       />
       <PlanStack.Screen 
+        name="ManagePlan" 
+        component={ManagePlanPage} 
+        options={{ headerShown: false }}
+      />
+      <PlanStack.Screen 
         name="Profile" 
         component={ProfilePage} 
         options={{ 
           title: 'Profile',
         }}
+      />
+      <PlanStack.Screen 
+        name="PersonalInformation" 
+        component={PersonalInformationPage} 
+        options={{ headerShown: false }}
       />
     </PlanStack.Navigator>
   );
@@ -313,6 +334,11 @@ function DashboardStackNavigator() {
           title: 'Profile',
         }}
       />
+      <DashboardStack.Screen 
+        name="PersonalInformation" 
+        component={PersonalInformationPage} 
+        options={{ headerShown: false }}
+      />
     </DashboardStack.Navigator>
   );
 }
@@ -373,6 +399,11 @@ function CoachStackNavigator() {
         options={{ 
           title: 'Profile',
         }}
+      />
+      <CoachStack.Screen 
+        name="PersonalInformation" 
+        component={PersonalInformationPage} 
+        options={{ headerShown: false }}
       />
     </CoachStack.Navigator>
   );
@@ -465,6 +496,11 @@ function InsightsStackNavigator() {
         options={{ 
           title: 'Profile',
         }}
+      />
+      <InsightsStack.Screen 
+        name="PersonalInformation" 
+        component={PersonalInformationPage} 
+        options={{ headerShown: false }}
       />
     </InsightsStack.Navigator>
   );

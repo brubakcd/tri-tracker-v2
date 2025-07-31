@@ -1,16 +1,36 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { StyleSheet, ScrollView, View, Text } from 'react-native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import WeekPlan from '../components/plan/WeekPlan';
-import RaceDate from '../components/plan/RaceDate';
-import { spacing, colors } from '../styles/tokens';
+import WeekPlanCard from '../components/plan/WeekPlanCard';
+import PlanHeader from '../components/plan/PlanHeader';
+import QuickActions from '../components/plan/QuickActions';
+import PhaseCard from '../components/plan/PhaseCard';
+import { spacing, colors, typography } from '../styles/tokens';
+
+type PlanStackParamList = {
+  PlanOverview: undefined;
+  PlanDetailOverview: undefined;
+  WeeklyView: undefined;
+  WeekDetail: {
+    weekNumber: number;
+    phase: string;
+    description: string;
+    workouts: any[];
+  };
+  WorkoutDetail: {
+    workoutId: string;
+    status?: 'upcoming' | 'scheduled' | 'completed';
+  };
+  ManagePlan: undefined;
+  Profile: undefined;
+};
 
 export default function PlanPage() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<PlanStackParamList>>();
   const currentWeek = 8; // This would come from your data/state
   const totalWeeks = 12;
   const scrollViewRef = useRef<ScrollView>(null);
-  const weekPositions = useRef<{ [key: number]: number }>({});
 
   // Scroll to top on tab press
   useEffect(() => {
@@ -94,47 +114,95 @@ export default function PlanPage() {
   const raceDate = new Date(planStartDate);
   raceDate.setDate(planStartDate.getDate() + (totalWeeks * 7) + 7);
 
-  // Keep chronological order
-  const sortedWeeks = allWeeks; // Already in chronological order
+  // Group weeks by phase
+  const phases = [
+    {
+      name: 'Base Building',
+      description: 'Building aerobic fitness and technique',
+      color: colors.system.blue,
+      weeks: [1, 2, 3, 4],
+    },
+    {
+      name: 'Build Phase', 
+      description: 'Adding intensity and race-specific work',
+      color: colors.system.orange,
+      weeks: [5, 6, 7, 8, 9],
+    },
+    {
+      name: 'Peak & Taper',
+      description: 'Race preparation and recovery',
+      color: colors.system.purple,
+      weeks: [10, 11, 12],
+    },
+  ];
 
-  // Scroll to current week on component mount
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const currentWeekPosition = weekPositions.current[currentWeek];
-      if (scrollViewRef.current && currentWeekPosition !== undefined) {
-        scrollViewRef.current.scrollTo({
-          y: Math.max(0, currentWeekPosition - 100), // Scroll with some padding from top
-          animated: true
-        });
-      }
-    }, 500); // Longer delay to ensure all layouts are complete
-
-    return () => clearTimeout(timer);
-  }, [currentWeek]);
-
-
-  // Handle week layout to track positions
-  const handleWeekLayout = (weekNumber: number, y: number) => {
-    weekPositions.current[weekNumber] = y;
+  // Get today's workout
+  const getTodaysWorkout = () => {
+    const today = new Date();
+    const currentWeekData = allWeeks.find(w => w.weekNumber === currentWeek);
+    if (!currentWeekData) return null;
     
-    // If this is the current week and all previous weeks have been measured, scroll
-    if (weekNumber === currentWeek) {
-      const allPreviousWeeksMeasured = Array.from({ length: currentWeek }, (_, i) => i + 1)
-        .every(week => weekPositions.current[week] !== undefined);
-      
-      if (allPreviousWeeksMeasured && scrollViewRef.current) {
-        setTimeout(() => {
-          scrollViewRef.current?.scrollTo({
-            y: Math.max(0, y - 100),
-            animated: true
-          });
-        }, 100);
-      }
+    const todaysWorkout = currentWeekData.workouts.find(w => {
+      const workoutDate = new Date(w.scheduled_date);
+      return workoutDate.toDateString() === today.toDateString();
+    });
+    
+    return todaysWorkout ? {
+      discipline: todaysWorkout.discipline,
+      title: todaysWorkout.workout_data.title,
+      duration: todaysWorkout.workout_data.duration,
+    } : null;
+  };
+
+  // Calculate week stats
+  const getWeekStats = () => {
+    const currentWeekData = allWeeks.find(w => w.weekNumber === currentWeek);
+    if (!currentWeekData) return { completed: 0, total: 0, hoursRemaining: 0 };
+    
+    const completed = currentWeekData.workouts.filter(w => w.status === 'completed').length;
+    const total = currentWeekData.workouts.filter(w => w.discipline !== 'rest').length;
+    
+    // Mock hours calculation
+    const remainingWorkouts = currentWeekData.workouts.filter(
+      w => w.status !== 'completed' && w.discipline !== 'rest'
+    );
+    const hoursRemaining = remainingWorkouts.reduce((acc, w) => {
+      const duration = parseInt(w.workout_data.duration) || 0;
+      return acc + duration / 60;
+    }, 0);
+    
+    return { completed, total, hoursRemaining };
+  };
+
+  // Remove auto-scroll behavior - page should always start at top
+
+  const handleWorkoutPress = (workoutId: string) => {
+    navigation.navigate('WorkoutDetail', { workoutId });
+  };
+
+  const handleTodaysWorkoutPress = () => {
+    const todaysWorkout = getTodaysWorkout();
+    if (todaysWorkout) {
+      // Navigate to today's workout
+      navigation.navigate('WorkoutDetail', { workoutId: 'todays_workout' });
     }
   };
 
-  const handleWorkoutPress = (workoutId: string) => {
-    console.log('Navigate to workout:', workoutId);
+  const handleCurrentWeekPress = () => {
+    navigation.navigate('WeekDetail', {
+      weekNumber: currentWeek,
+      phase: getWeekPhase(currentWeek),
+      description: getWeekDescription(currentWeek),
+      workouts: allWeeks.find(w => w.weekNumber === currentWeek)?.workouts || []
+    });
+  };
+
+  const handlePlanOverviewPress = () => {
+    navigation.navigate('PlanDetailOverview');
+  };
+
+  const handleManagePlanPress = () => {
+    navigation.navigate('ManagePlan');
   };
 
   return (
@@ -144,31 +212,81 @@ export default function PlanPage() {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      {sortedWeeks.map((week) => (
-        <WeekPlan
-          key={week.weekNumber}
-          weekNumber={week.weekNumber}
-          phase={week.phase}
-          description={week.description}
-          workouts={week.workouts}
-          isCurrentWeek={week.isCurrentWeek}
-          weekStartDate={week.weekStartDate}
-          currentWeekNumber={currentWeek}
-          onWorkoutPress={handleWorkoutPress}
-          onLayout={(event) => {
-            const { y } = event.nativeEvent.layout;
-            handleWeekLayout(week.weekNumber, y);
-          }}
-        />
-      ))}
-      
-      {/* Race Date Component */}
-      <RaceDate
+      {/* Plan Header */}
+      <PlanHeader
         raceName="Summer Olympic Triathlon"
         raceDate={raceDate}
-        raceType="Olympic Triathlon"
-        location="Lakefront Park, Chicago"
+        raceType="Olympic Distance"
+        currentWeek={currentWeek}
+        totalWeeks={totalWeeks}
+        currentPhase={getWeekPhase(currentWeek)}
+        phaseColor={phases.find(p => p.name === getWeekPhase(currentWeek))?.color}
       />
+
+      {/* Quick Actions */}
+      <QuickActions
+        todaysWorkout={getTodaysWorkout()}
+        weekStats={getWeekStats()}
+        onTodaysWorkoutPress={handleTodaysWorkoutPress}
+        onCurrentWeekPress={handleCurrentWeekPress}
+        onPlanOverviewPress={handlePlanOverviewPress}
+        onManagePlanPress={handleManagePlanPress}
+      />
+
+      {/* Current Week Highlight */}
+      <View style={styles.currentWeekSection}>
+        <Text style={styles.sectionTitle}>Current Week</Text>
+        {allWeeks
+          .filter(week => week.weekNumber === currentWeek)
+          .map((week) => (
+            <WeekPlan
+              key={week.weekNumber}
+              weekNumber={week.weekNumber}
+              phase={week.phase}
+              description={week.description}
+              workouts={week.workouts}
+              isCurrentWeek={true}
+              weekStartDate={week.weekStartDate}
+              currentWeekNumber={currentWeek}
+              onWorkoutPress={handleWorkoutPress}
+            />
+          ))}
+      </View>
+
+      {/* All Weeks by Phase */}
+      <View style={styles.allWeeksSection}>
+        <Text style={styles.sectionTitle}>Training Phases</Text>
+        {phases.map((phase) => {
+          const phaseWeeks = allWeeks.filter(week => phase.weeks.includes(week.weekNumber));
+          const isCurrentPhase = phase.weeks.includes(currentWeek);
+          
+          return (
+            <PhaseCard
+              key={phase.name}
+              phaseName={phase.name}
+              phaseDescription={phase.description}
+              phaseColor={phase.color}
+              weekNumbers={phase.weeks}
+              currentWeek={currentWeek}
+              isExpanded={isCurrentPhase}
+            >
+              {phaseWeeks.map((week) => (
+                <WeekPlanCard
+                  key={week.weekNumber}
+                  weekNumber={week.weekNumber}
+                  phase={week.phase}
+                  description={week.description}
+                  workouts={week.workouts}
+                  isCurrentWeek={week.isCurrentWeek}
+                  weekStartDate={week.weekStartDate}
+                  currentWeekNumber={currentWeek}
+                  onWorkoutPress={handleWorkoutPress}
+                />
+              ))}
+            </PhaseCard>
+          );
+        })}
+      </View>
     </ScrollView>
   );
 }
@@ -180,7 +298,23 @@ const styles = StyleSheet.create({
   },
   
   content: {
-    paddingTop: spacing[4],
+    paddingTop: 0,
     paddingBottom: spacing[8],
+  },
+
+  currentWeekSection: {
+    marginTop: spacing[4],
+  },
+
+  allWeeksSection: {
+    marginTop: spacing[6],
+  },
+
+  sectionTitle: {
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.bold,
+    color: colors.neutral.text,
+    marginBottom: spacing[3],
+    paddingHorizontal: spacing[4],
   },
 });

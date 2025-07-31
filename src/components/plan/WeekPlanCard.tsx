@@ -1,18 +1,12 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, LayoutAnimation, Platform, UIManager } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import WeekWorkoutIcons from '../dashboard/WeekWorkoutIcons';
-import WeekWorkoutList from '../dashboard/WeekWorkoutList';
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/tokens';
 import PhaseBadge from '../ui/PhaseBadge';
 
-// Enable LayoutAnimation on Android
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
-
-interface WeekPlanProps {
+interface WeekPlanCardProps {
   weekNumber: number;
   phase: string;
   description: string;
@@ -21,10 +15,9 @@ interface WeekPlanProps {
   weekStartDate?: Date;
   currentWeekNumber?: number;
   onWorkoutPress?: (workoutId: string) => void;
-  onLayout?: (event: any) => void;
 }
 
-export default function WeekPlan({
+export default function WeekPlanCard({
   weekNumber,
   phase,
   description,
@@ -33,15 +26,8 @@ export default function WeekPlan({
   weekStartDate,
   currentWeekNumber = 8,
   onWorkoutPress,
-  onLayout
-}: WeekPlanProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+}: WeekPlanCardProps) {
   const navigation = useNavigation<any>();
-
-  const toggleExpanded = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setIsExpanded(!isExpanded);
-  };
 
   const handleWeekPress = () => {
     navigation.navigate('WeekDetail', {
@@ -55,7 +41,6 @@ export default function WeekPlan({
   // Calculate week date range
   const getWeekDateRange = () => {
     if (!weekStartDate) {
-      // Fallback calculation if no start date provided
       const baseDate = new Date(2024, 0, 8); // Jan 8, 2024
       const startDate = new Date(baseDate);
       startDate.setDate(baseDate.getDate() + (weekNumber - 1) * 7);
@@ -72,14 +57,11 @@ export default function WeekPlan({
 
   const formatDateRange = () => {
     const { startDate, endDate } = getWeekDateRange();
-    const formatOptions: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
     
     if (startDate.getMonth() === endDate.getMonth()) {
-      // Same month: "Jan 8 - 14"
       return `${startDate.toLocaleDateString('en-US', { month: 'short' })} ${startDate.getDate()} - ${endDate.getDate()}`;
     } else {
-      // Different months: "Jan 30 - Feb 5"
-      return `${startDate.toLocaleDateString('en-US', formatOptions)} - ${endDate.toLocaleDateString('en-US', formatOptions)}`;
+      return `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
     }
   };
 
@@ -125,9 +107,8 @@ export default function WeekPlan({
         styles.container,
         isCurrentWeek && styles.currentWeekContainer
       ]}
-      onLayout={onLayout}
       onPress={handleWeekPress}
-      activeOpacity={0.9}
+      activeOpacity={0.8}
     >
       {/* Header */}
       <View style={styles.header}>
@@ -153,7 +134,7 @@ export default function WeekPlan({
         </View>
       </View>
 
-      {/* Description - Always show full text */}
+      {/* Description */}
       <Text style={styles.description}>
         {description}
       </Text>
@@ -166,43 +147,21 @@ export default function WeekPlan({
         />
       </View>
 
-      {/* Expand/Collapse Button for Workout Details */}
-      <TouchableOpacity 
-        style={styles.expandButton}
-        onPress={(e) => {
-          e.stopPropagation();
-          toggleExpanded();
-        }}
-        activeOpacity={0.7}
-      >
-        <Text style={styles.expandButtonText}>
-          {isExpanded ? 'Hide Workout Details' : 'Show Workout Details'}
-        </Text>
-        <Ionicons 
-          name={isExpanded ? 'chevron-up' : 'chevron-down'} 
-          size={20} 
-          color={colors.neutral.text} 
-        />
-      </TouchableOpacity>
-
-      {/* Expanded Content - Workout Details */}
-      {isExpanded && (
-        <WeekWorkoutList 
-          workouts={workouts}
-          onWorkoutPress={onWorkoutPress}
-        />
-      )}
+      {/* Tap to View Details */}
+      <View style={styles.tapHint}>
+        <Text style={styles.tapHintText}>Tap to view week details</Text>
+        <Ionicons name="chevron-forward" size={16} color={colors.neutral.secondary} />
+      </View>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.neutral.cards,
+    backgroundColor: colors.white,
     borderRadius: borderRadius.lg,
-    padding: spacing[5],
     marginHorizontal: spacing[4],
-    marginBottom: spacing[4],
+    marginBottom: spacing[3],
     ...shadows.base,
   },
 
@@ -214,8 +173,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: spacing[3],
-    minHeight: 60, // Ensure consistent header height
+    padding: spacing[4],
+    paddingBottom: spacing[3],
   },
 
   titleContainer: {
@@ -232,12 +191,10 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing[2],
-    minHeight: 24, // Match badge height for alignment
   },
 
   weekTitle: {
-    fontSize: typography.sizes.xl,
+    fontSize: typography.sizes.lg,
     fontWeight: typography.weights.bold,
     color: colors.neutral.text,
   },
@@ -245,12 +202,11 @@ const styles = StyleSheet.create({
   badgeContainer: {
     alignItems: 'flex-end',
     gap: spacing[1],
-    justifyContent: 'flex-start',
   },
 
   statusBadgeGroup: {
     alignItems: 'flex-end',
-    gap: spacing[1] / 2, // Tighter spacing between status badges
+    gap: spacing[1] / 2,
   },
 
 
@@ -259,8 +215,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[1] / 2,
     borderRadius: borderRadius.full,
     alignSelf: 'flex-end',
-    minHeight: 20, // Match xl font size (20px) height
-    justifyContent: 'center',
   },
 
   statusBadgeText: {
@@ -269,32 +223,33 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-
   description: {
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.normal,
     color: colors.neutral.text,
     lineHeight: typography.lineHeights.relaxed * typography.sizes.sm,
-    marginBottom: spacing[4],
+    paddingHorizontal: spacing[4],
+    marginBottom: spacing[3],
   },
 
   workoutIconsContainer: {
-    marginBottom: spacing[4],
+    paddingHorizontal: spacing[4],
+    marginBottom: spacing[3],
   },
 
-  expandButton: {
+  tapHint: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: spacing[3],
     borderTopWidth: 1,
     borderTopColor: colors.neutral.separator,
-    gap: spacing[2],
+    gap: spacing[1],
   },
 
-  expandButtonText: {
+  tapHintText: {
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.medium,
-    color: colors.primary,
+    color: colors.neutral.secondary,
   },
 });

@@ -107,8 +107,10 @@ export default function TodaysWorkoutSimple({ onPress }: TodaysWorkoutSimpleProp
       {coachNote && (
         <View style={styles.coachTip}>
           <View style={styles.coachTipHeader}>
-            <Ionicons name="chatbubble-ellipses-outline" size={16} color={colors.system.gray} />
-            <Text style={styles.coachTipLabel}>COACHING TIP</Text>
+            <View style={styles.coachTipTitleRow}>
+              <Ionicons name="chatbubble-ellipses-outline" size={14} color={`${colors.white}BF`} />
+              <Text style={styles.coachTipLabel}>COACHING TIP</Text>
+            </View>
           </View>
           <Text style={styles.coachTipText}>
             {coachNote}
@@ -244,20 +246,24 @@ const styles = StyleSheet.create({
   },
   
   coachTip: {
-    backgroundColor: colors.system.gray6,
-    padding: spacing[3] + spacing[1],
-    borderRadius: borderRadius.base + 2,
+    backgroundColor: colors.neutral.text,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[4],
   },
   
   coachTipHeader: {
+    marginBottom: spacing[2],
+  },
+
+  coachTipTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing[1] + spacing[1]/2,
   },
   
   coachTipLabel: {
-    fontSize: typography.sizes.xs - 2,
-    color: colors.system.gray,
+    fontSize: 11,
+    color: `${colors.white}BF`,
     fontWeight: typography.weights.medium,
     letterSpacing: 0.5,
     marginLeft: spacing[1] + spacing[1]/2,
@@ -265,9 +271,9 @@ const styles = StyleSheet.create({
   },
   
   coachTipText: {
-    fontSize: typography.sizes.sm - 1,
-    color: colors.text.secondary,
-    lineHeight: 18,
+    fontSize: typography.sizes.sm,
+    color: colors.white,
+    lineHeight: 20,
   },
   
   restDayContainer: {
