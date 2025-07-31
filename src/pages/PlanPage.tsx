@@ -37,7 +37,7 @@ export default function PlanPage() {
     const parent = navigation.getParent();
     if (!parent) return;
 
-    const unsubscribe = parent.addListener('tabPress', () => {
+    const unsubscribe = (parent as any).addListener('tabPress', () => {
       if (navigation.isFocused()) {
         scrollViewRef.current?.scrollTo({ y: 0, animated: true });
       }
@@ -215,7 +215,6 @@ export default function PlanPage() {
       {/* Plan Header */}
       <PlanHeader
         raceName="Summer Olympic Triathlon"
-        raceDate={raceDate}
         raceType="Olympic Distance"
         currentWeek={currentWeek}
         totalWeeks={totalWeeks}

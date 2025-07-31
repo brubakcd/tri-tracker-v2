@@ -7,7 +7,25 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Dashboard, PlanPage, PlanOverviewPage, ManagePlanPage, WeeklyView, WeekDetailPage, WorkoutDetail, CoachPage, ProfilePage, PersonalInformationPage, InsightsPage } from './src/pages';
+import { 
+  Dashboard, 
+  PlanPage, 
+  PlanOverviewPage, 
+  ManagePlanPage, 
+  WeeklyView, 
+  WeekDetailPage, 
+  WorkoutDetail, 
+  ProfilePage, 
+  PersonalInformationPage, 
+  TrainingPreferencesPage,
+  SubscriptionBillingPage,
+  PushNotificationsPage,
+  EmailPreferencesPage,
+  HelpCenterPage,
+  ContactSupportPage,
+  AboutPage,
+  InsightsPage 
+} from './src/pages';
 import AllInsightsPage from './src/pages/AllInsightsPage';
 import { ProfileIcon, NotificationsIcon } from './src/components/ui';
 import AuthWrapper from './src/components/auth/AuthWrapper';
@@ -62,17 +80,35 @@ type TabParamList = {
   Dashboard: undefined;
   Plan: undefined;
   Insights: undefined;
-  Coach: undefined;
+  Profile: undefined;
 };
 
-type CoachStackParamList = {
-  CoachHome: undefined;
-  Profile: undefined;
+type ProfileStackParamList = {
+  ProfileHome: undefined;
   PersonalInformation: undefined;
+  TrainingPreferences: undefined;
+  SubscriptionBilling: undefined;
+  PushNotifications: undefined;
+  EmailPreferences: undefined;
+  HelpCenter: undefined;
+  ContactSupport: undefined;
+  About: undefined;
 };
 
 type InsightsStackParamList = {
   InsightsHome: undefined;
+  AllInsights: {
+    insights: Array<{
+      id: string;
+      date: Date;
+      insights: Array<{
+        type: 'performance' | 'progress' | 'achievement' | 'recommendation';
+        title: string;
+        message: string;
+        icon: string;
+      }>;
+    }>;
+  };
   Profile: undefined;
   PersonalInformation: undefined;
 };
@@ -82,7 +118,7 @@ const AuthStack = createStackNavigator<AuthStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 const PlanStack = createStackNavigator<PlanStackParamList>();
 const DashboardStack = createStackNavigator<DashboardStackParamList>();
-const CoachStack = createStackNavigator<CoachStackParamList>();
+const ProfileStack = createStackNavigator<ProfileStackParamList>();
 const InsightsStack = createStackNavigator<InsightsStackParamList>();
 
 function AuthStackNavigator() {
@@ -155,8 +191,8 @@ function PlanStackNavigator() {
         ),
         headerLeft: () => (
           <ProfileIcon
-            initials="CB"
-            onPress={() => navigation.navigate('Profile')}
+            imageSource={require('./assets/delta_black.png')}
+            onPress={() => navigation.getParent()?.navigate('Dashboard')}
             size={32}
           />
         ),
@@ -272,8 +308,8 @@ function DashboardStackNavigator() {
         ),
         headerLeft: () => (
           <ProfileIcon
-            initials="CB"
-            onPress={() => navigation.navigate('Profile')}
+            imageSource={require('./assets/delta_black.png')}
+            onPress={() => navigation.getParent()?.navigate('Dashboard')}
             size={32}
           />
         ),
@@ -343,9 +379,9 @@ function DashboardStackNavigator() {
   );
 }
 
-function CoachStackNavigator() {
+function ProfileStackNavigator() {
   return (
-    <CoachStack.Navigator
+    <ProfileStack.Navigator
       screenOptions={({ navigation }) => ({
         headerStyle: {
           backgroundColor: colors.neutral.cards,
@@ -369,8 +405,8 @@ function CoachStackNavigator() {
         ),
         headerLeft: () => (
           <ProfileIcon
-            initials="CB"
-            onPress={() => navigation.navigate('Profile')}
+            imageSource={require('./assets/delta_black.png')}
+            onPress={() => navigation.getParent()?.navigate('Dashboard')}
             size={32}
           />
         ),
@@ -388,24 +424,54 @@ function CoachStackNavigator() {
         },
       })}
     >
-      <CoachStack.Screen 
-        name="CoachHome" 
-        component={CoachPage} 
-        options={{ headerShown: false }}
-      />
-      <CoachStack.Screen 
-        name="Profile" 
+      <ProfileStack.Screen 
+        name="ProfileHome" 
         component={ProfilePage} 
         options={{ 
           title: 'Profile',
         }}
       />
-      <CoachStack.Screen 
+      <ProfileStack.Screen 
         name="PersonalInformation" 
         component={PersonalInformationPage} 
         options={{ headerShown: false }}
       />
-    </CoachStack.Navigator>
+      <ProfileStack.Screen 
+        name="TrainingPreferences" 
+        component={TrainingPreferencesPage} 
+        options={{ headerShown: false }}
+      />
+      <ProfileStack.Screen 
+        name="SubscriptionBilling" 
+        component={SubscriptionBillingPage} 
+        options={{ headerShown: false }}
+      />
+      <ProfileStack.Screen 
+        name="PushNotifications" 
+        component={PushNotificationsPage} 
+        options={{ headerShown: false }}
+      />
+      <ProfileStack.Screen 
+        name="EmailPreferences" 
+        component={EmailPreferencesPage} 
+        options={{ headerShown: false }}
+      />
+      <ProfileStack.Screen 
+        name="HelpCenter" 
+        component={HelpCenterPage} 
+        options={{ headerShown: false }}
+      />
+      <ProfileStack.Screen 
+        name="ContactSupport" 
+        component={ContactSupportPage} 
+        options={{ headerShown: false }}
+      />
+      <ProfileStack.Screen 
+        name="About" 
+        component={AboutPage} 
+        options={{ headerShown: false }}
+      />
+    </ProfileStack.Navigator>
   );
 }
 
@@ -435,8 +501,8 @@ function InsightsStackNavigator() {
         ),
         headerLeft: () => (
           <ProfileIcon
-            initials="CB"
-            onPress={() => navigation.navigate('Profile')}
+            imageSource={require('./assets/delta_black.png')}
+            onPress={() => navigation.getParent()?.navigate('Dashboard')}
             size={32}
           />
         ),
@@ -521,8 +587,8 @@ function TabNavigator() {
               iconName = focused ? 'calendar' : 'calendar-outline';
             } else if (route.name === 'Insights') {
               iconName = focused ? 'analytics' : 'analytics-outline';
-            } else if (route.name === 'Coach') {
-              iconName = focused ? 'fitness' : 'fitness-outline';
+            } else if (route.name === 'Profile') {
+              iconName = focused ? 'person' : 'person-outline';
             } else {
               iconName = 'help-outline';
             }
@@ -569,9 +635,9 @@ function TabNavigator() {
           options={{ title: 'Insights', headerShown: false }}
         />
         <Tab.Screen 
-          name="Coach" 
-          component={CoachStackNavigator}
-          options={{ title: 'Coach', headerShown: false }}
+          name="Profile" 
+          component={ProfileStackNavigator}
+          options={{ title: 'Profile', headerShown: false }}
         />
       </Tab.Navigator>
     );

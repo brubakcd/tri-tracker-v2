@@ -41,7 +41,7 @@ export default function Dashboard({ navigation }: DashboardProps) {
     const parent = navigation.getParent();
     if (!parent) return;
 
-    const unsubscribe = parent.addListener('tabPress', () => {
+    const unsubscribe = (parent as any).addListener('tabPress', () => {
       if (navigation.isFocused()) {
         scrollViewRef.current?.scrollTo({ y: 0, animated: true });
       }

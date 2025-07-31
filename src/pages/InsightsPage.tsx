@@ -38,7 +38,7 @@ export default function InsightsPage({ navigation }: InsightsProps) {
     const parent = navigation.getParent();
     if (!parent) return;
 
-    const unsubscribe = parent.addListener('tabPress', () => {
+    const unsubscribe = (parent as any).addListener('tabPress', () => {
       if (navigation.isFocused()) {
         scrollViewRef.current?.scrollTo({ y: 0, animated: true });
       }
@@ -63,7 +63,7 @@ export default function InsightsPage({ navigation }: InsightsProps) {
       date: new Date(),
       insights: [
         {
-          type: 'performance',
+          type: 'performance' as const,
           title: 'Strong Training Week',
           message: `You've completed ${weeklyProgress.workoutsCompleted} workouts this week with great consistency!`,
           icon: 'trending-up'
@@ -75,7 +75,7 @@ export default function InsightsPage({ navigation }: InsightsProps) {
       date: new Date(Date.now() - 24 * 60 * 60 * 1000),
       insights: [
         {
-          type: 'achievement',
+          type: 'achievement' as const,
           title: 'New Swimming PR',
           message: 'Congratulations! You set a new 1500m swim time record.',
           icon: 'trophy-outline'

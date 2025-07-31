@@ -27,8 +27,8 @@ type AllInsightsNavigationProp = StackNavigationProp<InsightsStackParamList, 'Al
 type AllInsightsRouteProp = RouteProp<InsightsStackParamList, 'AllInsights'>;
 
 interface AllInsightsPageProps {
-  navigation: AllInsightsNavigationProp;
-  route: AllInsightsRouteProp;
+  navigation?: any;
+  route: any;
 }
 
 export default function AllInsightsPage({ route }: AllInsightsPageProps) {

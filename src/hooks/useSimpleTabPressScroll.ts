@@ -20,7 +20,7 @@ export function useSimpleTabPressScroll(scrollViewRef: RefObject<ScrollView>) {
     });
 
     // Also listen to tabPress for when user taps the already-focused tab
-    const unsubscribeTabPress = navigation.addListener('tabPress', (e) => {
+    const unsubscribeTabPress = (navigation as any).addListener('tabPress', (e: any) => {
       // Only scroll if we're already focused (meaning user tapped the active tab)
       if (isFocused && scrollViewRef.current) {
         scrollViewRef.current.scrollTo({ y: 0, animated: true });

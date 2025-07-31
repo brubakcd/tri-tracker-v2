@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp, useNavigation } from '@react-navigation/native';
@@ -8,36 +8,42 @@ import Button from '../components/ui/Button';
 import { colors, spacing, typography, borderRadius, shadows } from '../styles/tokens';
 import { RootStackParamList } from '../../App';
 
-type PlanStackParamList = {
-  PlanOverview: undefined;
-  PlanDetailOverview: undefined;
-  WeeklyView: undefined;
-  WeekDetail: {
-    weekNumber: number;
-    phase: string;
-    description: string;
-    workouts: any[];
-  };
-  WorkoutDetail: {
-    workoutId: string;
-    status?: 'upcoming' | 'scheduled' | 'completed';
-  };
-  ManagePlan: undefined;
-  Profile: undefined;
+type ProfileStackParamList = {
+  ProfileHome: undefined;
   PersonalInformation: undefined;
+  TrainingPreferences: undefined;
+  SubscriptionBilling: undefined;
+  PushNotifications: undefined;
+  EmailPreferences: undefined;
+  HelpCenter: undefined;
+  ContactSupport: undefined;
+  About: undefined;
 };
 
-type ProfileNavigationProp = StackNavigationProp<PlanStackParamList, 'Profile'>;
-type ProfileRouteProp = RouteProp<PlanStackParamList, 'Profile'>;
 type RootNavigationProp = StackNavigationProp<RootStackParamList>;
 
 interface ProfileProps {
-  navigation: ProfileNavigationProp;
-  route: ProfileRouteProp;
+  navigation: any;
+  route?: any;
 }
 
 export default function ProfilePage({ navigation }: ProfileProps) {
   const rootNavigation = useNavigation<RootNavigationProp>();
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  // Scroll to top on tab press
+  useEffect(() => {
+    const parent = navigation.getParent();
+    if (!parent) return;
+
+    const unsubscribe = (parent as any).addListener('tabPress', () => {
+      if (navigation.isFocused()) {
+        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const handleSignOut = () => {
     rootNavigation.navigate('SignOut');
@@ -48,36 +54,37 @@ export default function ProfilePage({ navigation }: ProfileProps) {
   };
 
   const handleTrainingPreferences = () => {
-    console.log('Training preferences pressed');
+    navigation.navigate('TrainingPreferences');
   };
 
   const handleSubscriptionBilling = () => {
-    console.log('Subscription & billing pressed');
+    navigation.navigate('SubscriptionBilling');
   };
 
   const handlePushNotifications = () => {
-    console.log('Push notifications pressed');
+    navigation.navigate('PushNotifications');
   };
 
   const handleEmailPreferences = () => {
-    console.log('Email preferences pressed');
+    navigation.navigate('EmailPreferences');
   };
 
   const handleHelpCenter = () => {
-    console.log('Help center pressed');
+    navigation.navigate('HelpCenter');
   };
 
   const handleContactSupport = () => {
-    console.log('Contact support pressed');
+    navigation.navigate('ContactSupport');
   };
 
   const handleAbout = () => {
-    console.log('About pressed');
+    navigation.navigate('About');
   };
 
   return (
     <View style={styles.container}>
       <ScrollView 
+        ref={scrollViewRef}
         style={styles.scrollView} 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -306,7 +313,6 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.neutral.separator,
     marginHorizontal: -spacing[5],
-    marginLeft: 0,
   },
 
 

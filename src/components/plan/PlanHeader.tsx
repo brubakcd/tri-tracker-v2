@@ -6,7 +6,6 @@ import PhaseBadge from '../ui/PhaseBadge';
 
 interface PlanHeaderProps {
   raceName: string;
-  raceDate: Date;
   raceType: string; // e.g., "Olympic Distance"
   currentWeek: number;
   totalWeeks: number;
@@ -16,35 +15,18 @@ interface PlanHeaderProps {
 
 export default function PlanHeader({
   raceName,
-  raceDate,
   raceType,
   currentWeek,
   totalWeeks,
   currentPhase,
   phaseColor = colors.primary,
 }: PlanHeaderProps) {
-  // Calculate progress percentage
-  const progressPercentage = (currentWeek / totalWeeks) * 100;
-  
-  // Calculate days to race
-  const today = new Date();
-  const daysToRace = Math.ceil((raceDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  
-  // Format race date
-  const formatRaceDate = () => {
-    return raceDate.toLocaleDateString('en-US', { 
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric' 
-    });
-  };
 
   return (
     <View style={styles.container}>
       {/* Main Info Section */}
       <View style={styles.mainSection}>
         <Text style={styles.raceName}>{raceName}</Text>
-        <Text style={styles.raceDate}>{formatRaceDate()}</Text>
         
         {/* Training Type Badge */}
         <View style={styles.trainingBadge}>
@@ -79,13 +61,9 @@ export default function PlanHeader({
           })}
         </View>
 
-        {/* Phase and Days Info */}
+        {/* Phase Info */}
         <View style={styles.infoRow}>
           <PhaseBadge phase={currentPhase} />
-          <View style={styles.daysContainer}>
-            <Text style={styles.daysNumber}>{daysToRace}</Text>
-            <Text style={styles.daysLabel}>days to race</Text>
-          </View>
         </View>
       </View>
     </View>
@@ -114,13 +92,6 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
 
-  raceDate: {
-    fontSize: typography.sizes.base,
-    fontWeight: typography.weights.normal,
-    color: colors.neutral.secondary,
-    marginBottom: spacing[4],
-    textAlign: 'left',
-  },
 
   trainingBadge: {
     flexDirection: 'row',
@@ -130,7 +101,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[2],
     borderRadius: borderRadius.full,
-    marginBottom: spacing[5],
+    marginBottom: spacing[4],
     alignSelf: 'center',
     borderWidth: 1,
     borderColor: `${colors.system.blue}50`,
@@ -180,6 +151,12 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing[1] / 2,
   },
 
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
   weekPillCompleted: {
     backgroundColor: colors.status.completed,
   },
@@ -193,27 +170,4 @@ const styles = StyleSheet.create({
     backgroundColor: colors.neutral.border,
   },
 
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-
-
-  daysContainer: {
-    alignItems: 'center',
-  },
-
-  daysNumber: {
-    fontSize: typography.sizes.xxl,
-    fontWeight: typography.weights.bold,
-    color: colors.primary,
-    lineHeight: typography.sizes.xxl,
-  },
-
-  daysLabel: {
-    fontSize: typography.sizes.xs,
-    color: colors.neutral.secondary,
-    marginTop: -spacing[1],
-  },
 });

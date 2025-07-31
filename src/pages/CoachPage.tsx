@@ -55,7 +55,7 @@ export default function CoachPage({ navigation }: CoachPageProps) {
     const parent = navigation.getParent();
     if (!parent) return;
 
-    const unsubscribe = parent.addListener('tabPress', () => {
+    const unsubscribe = (parent as any).addListener('tabPress', () => {
       if (navigation.isFocused()) {
         scrollViewRef.current?.scrollTo({ y: 0, animated: true });
       }
@@ -218,7 +218,6 @@ export default function CoachPage({ navigation }: CoachPageProps) {
               }, 300);
             }}
             multiline
-            maxHeight={100}
           />
           <TouchableOpacity 
             style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}

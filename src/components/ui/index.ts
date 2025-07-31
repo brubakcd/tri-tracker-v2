@@ -4,6 +4,7 @@ export { default as Card } from './Card';
 export { default as ProfileIcon } from './ProfileIcon';
 export { default as NotificationsIcon } from './NotificationsIcon';
 export { default as PageHeader } from './PageHeader';
+export { default as SettingsRow } from './SettingsRow';
 
 // Typography
 export {

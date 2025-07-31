@@ -60,7 +60,7 @@ export default function WeekDetailPage() {
   };
 
   const handleWorkoutPress = (workoutId: string) => {
-    navigation.navigate('WorkoutDetail', { workoutId });
+    (navigation as any).navigate('WorkoutDetail', { workoutId });
   };
 
   const handleViewPlanPress = () => {
@@ -70,7 +70,7 @@ export default function WeekDetailPage() {
   const handlePreviousWeek = () => {
     if (weekNumber > 1) {
       const newWeekNumber = weekNumber - 1;
-      navigation.setParams({
+      (navigation as any).setParams({
         weekNumber: newWeekNumber,
         phase: getWeekPhase(newWeekNumber),
         description: getWeekDescription(newWeekNumber),
@@ -82,7 +82,7 @@ export default function WeekDetailPage() {
   const handleNextWeek = () => {
     if (weekNumber < totalWeeks) {
       const newWeekNumber = weekNumber + 1;
-      navigation.setParams({
+      (navigation as any).setParams({
         weekNumber: newWeekNumber,
         phase: getWeekPhase(newWeekNumber),
         description: getWeekDescription(newWeekNumber),
